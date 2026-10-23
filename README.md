@@ -23,14 +23,14 @@ by the database rules:
       }
     }
 
-Anyone who knows a house code can read and write that house; codes are 8 random characters and the list of houses is not readable.
+Anyone who knows a house code can read and write that house; the list of houses is not readable.
 Console: https://console.firebase.google.com/project/hive-40adf/database (sign in with the personal account).
 
-Pairing the phones, inside the app (tab **אנחנו → סנכרון בין הטלפונים**):
-
-- Phone 1: **יצירת כוורת משותפת**. The phone's current tasks and shopping list become the shared copy.
-- Phone 1: **שליחת הזמנה** sends a link + the house code over WhatsApp or similar.
-- Phone 2: open the link (Android: joins straight away), or install the app first and type the code in the same card (iPhone: the home-screen app has its own storage, so type the code there).
+There is no pairing step: both phones attach automatically to the one house named by the `HOUSE` constant next to
+the Firebase config. The first phone to open the app seeds the house with its local copy; every later phone just
+loads it. Each phone asks once "who is using this phone?" so honey is credited to the right partner (changeable
+any time via the avatar toggle at the top). The house code is visible in the public source; the data is a chores
+list, so that trade-off was accepted. To start over with an empty hive, change `HOUSE` and redeploy.
 
 How sync behaves: every change is a small targeted write, queued in an outbox on the device so nothing is lost if the app is closed while offline. `me` (which partner uses this phone) and the sound toggle stay per-device.
 
