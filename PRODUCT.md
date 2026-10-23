@@ -31,13 +31,13 @@ Home tasks are mostly *recurring* and *invisible*. The mental load of rememberin
 
 ## What the demo does today
 
-Installable PWA in `app/` (index.html, manifest, service worker, icons). Works offline once installed. Data is saved in the browser on the device it runs on (each phone has its own copy), so the two lists are not yet synced. Needs HTTPS hosting (GitHub Pages) to install on phones.
+Installable PWA in `app/` (index.html, manifest, service worker, icons). Works offline once installed. Both phones share one list through a Firebase Realtime Database "house" (code pairing from the אנחנו tab, invite link, offline outbox); without a Firebase config the app runs local-only. Hosted on GitHub Pages via the workflow in `.github/workflows/`. Setup steps are in README.md.
 
 Local preview: `python -m http.server 8765 --directory app` then open http://localhost:8765. Icons regenerate with `app/make-icons.ps1`.
 
 ## Roadmap
 
-1. **Real sync (the next step that matters).** A small backend (Supabase or Firebase) so both phones share one list live. This is what turns the demo into the product.
+1. ~~**Real sync.**~~ Done: Firebase Realtime Database, one house per couple, invite link + code pairing, outbox for offline writes. Needs the Firebase project created once (README).
 2. **Push notifications.** Morning digest ("3 kindergarten things before you leave"), evening nudge, "your partner just finished X". Requires a PWA with a service worker and the backend from step 1.
 3. ~~Install as an app.~~ Done: PWA manifest, service worker, bee icon.
 4. **Rotation.** Tasks marked "whoever" can auto-alternate between partners each occurrence.
