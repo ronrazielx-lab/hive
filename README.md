@@ -1,6 +1,6 @@
 # הכוורת — Manager
 
-- `app/` — the installable PWA. Deployed as-is to GitHub Pages by `.github/workflows/pages.yml` on every push to `main`.
+- `app/` — the installable PWA. Deployed to GitHub Pages from the `gh-pages` branch (the contents of `app/`).
 - `PRODUCT.md` — product concept, screens, roadmap.
 - `.claude/launch.json` — local preview server config.
 
@@ -27,7 +27,7 @@ The app syncs through one Firebase "house" per couple. Without a Firebase config
 
    Anyone who knows a house code can read and write that house; codes are 8 random characters and the list of houses is not readable.
 4. **Project settings (gear) → Your apps → Add app → Web (`</>`)**. Register it (no hosting needed) and copy the `firebaseConfig` object.
-5. Paste `apiKey`, `authDomain`, `databaseURL`, `projectId`, `appId` into the `FIREBASE` constant at the top of the script in `app/index.html`, commit, push. GitHub Pages redeploys in about a minute.
+5. Paste `apiKey`, `authDomain`, `databaseURL`, `projectId`, `appId` into the `FIREBASE` constant at the top of the script in `app/index.html`, commit, then deploy (below).
 
 Pairing the phones, inside the app (tab **אנחנו → סנכרון בין הטלפונים**):
 
@@ -36,6 +36,15 @@ Pairing the phones, inside the app (tab **אנחנו → סנכרון בין ה�
 - Phone 2: open the link (Android: joins straight away), or install the app first and type the code in the same card (iPhone: the home-screen app has its own storage, so type the code there).
 
 How sync behaves: every change is a small targeted write, queued in an outbox on the device so nothing is lost if the app is closed while offline. `me` (which partner uses this phone) and the sound toggle stay per-device.
+
+## Deploying
+
+After committing on `main`, publish the app folder to the `gh-pages` branch:
+
+    git push origin main
+    git push origin "$(git subtree split --prefix app main):gh-pages" --force
+
+GitHub Pages serves it at https://ronrazielx-lab.github.io/hive/ within a minute or two.
 
 ## Installing on phones
 
