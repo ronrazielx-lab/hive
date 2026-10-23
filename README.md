@@ -10,24 +10,21 @@ Run locally:
 
 ## Sync between the two phones (Firebase Realtime Database)
 
-The app syncs through one Firebase "house" per couple. Without a Firebase config it runs in local-only mode
-(each phone keeps its own copy). One-time setup, about five minutes:
+The app syncs through one Firebase "house" per couple. Firebase project **hive-40adf** (Ron's personal Google
+account, free Spark plan), Realtime Database in Belgium (europe-west1). The web config lives in the `FIREBASE`
+constant at the top of the script in `app/index.html`; a Firebase web API key is not a secret, access is governed
+by the database rules:
 
-1. Go to https://console.firebase.google.com → **Add project** → name it `hive` (Google Analytics can be off).
-2. In the project: **Build → Realtime Database → Create database**. Pick a region (Belgium `europe-west1` is closest), start in **locked mode**.
-3. Open the **Rules** tab and replace the rules with:
+    {
+      "rules": {
+        "houses": {
+          "$code": { ".read": true, ".write": true }
+        }
+      }
+    }
 
-       {
-         "rules": {
-           "houses": {
-             "$code": { ".read": true, ".write": true }
-           }
-         }
-       }
-
-   Anyone who knows a house code can read and write that house; codes are 8 random characters and the list of houses is not readable.
-4. **Project settings (gear) → Your apps → Add app → Web (`</>`)**. Register it (no hosting needed) and copy the `firebaseConfig` object.
-5. Paste `apiKey`, `authDomain`, `databaseURL`, `projectId`, `appId` into the `FIREBASE` constant at the top of the script in `app/index.html`, commit, then deploy (below).
+Anyone who knows a house code can read and write that house; codes are 8 random characters and the list of houses is not readable.
+Console: https://console.firebase.google.com/project/hive-40adf/database (sign in with the personal account).
 
 Pairing the phones, inside the app (tab **אנחנו → סנכרון בין הטלפונים**):
 
