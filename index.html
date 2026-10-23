@@ -462,17 +462,18 @@ function syncAttach(){
   },err=>{ sync.error=err; scheduleRender(); });
   flushOutbox();
 }
+function withTimeout(p,ms){ return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))]); }
 async function syncCreate(){
   if(!sync.db) throw new Error('no db');
   const code=genCode();
-  await sync.db.ref('houses/'+code).set(toServer(state));
+  await withTimeout(sync.db.ref('houses/'+code).set(toServer(state)),12000);
   sync.code=code; try{ localStorage.setItem('hive.house',code); }catch(e){}
   syncAttach();
 }
 async function syncJoin(code){
   code=normCode(code); if(code.length!==8) throw new Error('bad code');
   if(!sync.db) throw new Error('no db');
-  const snap=await sync.db.ref('houses/'+code).get();
+  const snap=await withTimeout(sync.db.ref('houses/'+code).get(),12000);
   if(!snap.exists()) throw new Error('not found');
   sync.code=code; try{ localStorage.setItem('hive.house',code); }catch(e){}
   sync.outbox=[]; saveOutbox();
