@@ -268,6 +268,8 @@ const FIREBASE={
   apiKey:'AIzaSyCL3U_oKvtxCUX5V-MGkZyA7HbGoivnlg8', authDomain:'hive-40adf.firebaseapp.com', databaseURL:'https://hive-40adf-default-rtdb.europe-west1.firebasedatabase.app', projectId:'hive-40adf', appId:'1:883346030809:web:3fc49283c17c152d233ec8'
 };
 const FIREBASE_SDK='https://www.gstatic.com/firebasejs/12.4.0/';
+// The one shared "house" both phones attach to automatically. Change it to start a fresh, empty hive.
+const HOUSE='A8KK9VKF';
 
 /* ---------- helpers ---------- */
 const KEY='hive.v1';
@@ -328,12 +330,10 @@ function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e)
 let tab='today';
 try{ tab=sessionStorage.getItem('hive.tab')||'today'; }catch(e){}
 
-// Invite link: ?join=CODE&as=b  → join that house on this device, and pick which partner this phone is.
-let pendingJoin=null;
-try{
-  const q=new URLSearchParams(location.search);
-  if(q.get('join')){ pendingJoin=normCode(q.get('join')); const as=q.get('as'); if(as==='a'||as==='b'){ state.me=as; save(); } history.replaceState(null,'',location.pathname); }
-}catch(e){}
+// Per-device: has this phone's owner been chosen yet?
+let meChosen=false;
+try{ meChosen=localStorage.getItem('hive.me')==='1'; }catch(e){}
+function chooseMe(id){ state.me=id; meChosen=true; save(); try{ localStorage.setItem('hive.me','1'); }catch(e){} }
 
 /* ---------- domain ---------- */
 function isDue(t,ds){
@@ -394,15 +394,13 @@ function heDate(){ try{ return new Intl.DateTimeFormat('he-IL',{weekday:'long',d
 // Server layout: houses/<code>/{users/{a,b}, cats/<id>, tasks/<id>, done/<taskId|date>, shop/<id>, settings/{goal,reward,onboarded}}
 // Per-device only (never synced): state.me, settings.sound.
 // Writes are small targeted ops queued in an outbox (localStorage) so nothing is lost if the app closes while offline.
-const CODE_ALPHABET='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-function normCode(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8); }
-function fmtCode(c){ c=normCode(c); return c.length===8? c.slice(0,4)+'-'+c.slice(4) : c; }
-function genCode(){ const a=new Uint8Array(8); crypto.getRandomValues(a); return Array.from(a,b=>CODE_ALPHABET[b%CODE_ALPHABET.length]).join(''); }
 const sync={
   enabled: !!(FIREBASE&&FIREBASE.databaseURL&&FIREBASE.apiKey),
-  code:null, db:null, ref:null, online:false, ready:false, error:null, outbox:[], flushing:false,
+  code:null, db:null, ref:null, online:false, ready:false, error:null, outbox:[], flushing:false, waitOver:false,
 };
-try{ sync.code=normCode(localStorage.getItem('hive.house'))||null; }catch(e){}
+if(sync.enabled) sync.code=HOUSE;
+// If the first snapshot hasn't arrived after a few seconds (offline, first ever open), stop waiting and show the app.
+setTimeout(()=>{ sync.waitOver=true; if(!sync.ready) scheduleRender(); },8000);
 try{ sync.outbox=JSON.parse(localStorage.getItem('hive.outbox')||'[]')||[]; }catch(e){ sync.outbox=[]; }
 function saveOutbox(){ try{ localStorage.setItem('hive.outbox',JSON.stringify(sync.outbox)); }catch(e){} }
 sync.push=(p,v)=>{ if(!sync.code) return; sync.outbox.push({p,v:v===undefined?null:v}); saveOutbox(); flushOutbox(); };
@@ -442,52 +440,29 @@ function fromServer(v){
 }
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.async=true; s.onload=res; s.onerror=()=>rej(new Error('load '+src)); document.head.appendChild(s); }); }
 async function syncInit(){
-  if(!sync.enabled){ if(pendingJoin) toast('הסנכרון עדיין לא פעיל בגרסה הזו'); return; }
+  if(!sync.enabled) return;
   try{
     await loadScript(FIREBASE_SDK+'firebase-app-compat.js');
     await loadScript(FIREBASE_SDK+'firebase-database-compat.js');
     firebase.initializeApp(FIREBASE); sync.db=firebase.database();
     sync.db.ref('.info/connected').on('value',s=>{ sync.online=!!s.val(); if(sync.online) flushOutbox(); if(tab==='us') scheduleRender(); });
   }catch(e){ sync.error=e; if(tab==='us') scheduleRender(); return; }
-  if(pendingJoin&&pendingJoin!==sync.code){ const c=pendingJoin; pendingJoin=null; try{ await syncJoin(c); toast('הצטרפת לכוורת! 🐝'); }catch(e){ toast('לא נמצאה כוורת עם הקוד הזה'); } }
-  else if(sync.code) syncAttach();
+  syncAttach();
 }
+let seeded=false;
 function syncAttach(){
   if(!sync.db||!sync.code) return;
   if(sync.ref) sync.ref.off();
   sync.ref=sync.db.ref('houses/'+sync.code);
   sync.ref.on('value',snap=>{
-    const v=snap.val(); if(v===null) return; // house not there (deleted?) — keep local copy
-    state=fromServer(v); sync.ready=true; save(); scheduleRender();
-  },err=>{ sync.error=err; scheduleRender(); });
+    const v=snap.val();
+    if(v===null){ // nothing on the server yet: this is the very first phone, its local copy becomes the shared one
+      if(!seeded){ seeded=true; sync.ref.set(toServer(state)).catch(e=>{ sync.error=e; scheduleRender(); }); }
+      return;
+    }
+    state=fromServer(v); sync.ready=true; sync.error=null; save(); scheduleRender();
+  },err=>{ sync.error=err; sync.waitOver=true; scheduleRender(); });
   flushOutbox();
-}
-function withTimeout(p,ms){ return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))]); }
-async function syncCreate(){
-  if(!sync.db) throw new Error('no db');
-  const code=genCode();
-  await withTimeout(sync.db.ref('houses/'+code).set(toServer(state)),12000);
-  sync.code=code; try{ localStorage.setItem('hive.house',code); }catch(e){}
-  syncAttach();
-}
-async function syncJoin(code){
-  code=normCode(code); if(code.length!==8) throw new Error('bad code');
-  if(!sync.db) throw new Error('no db');
-  const snap=await withTimeout(sync.db.ref('houses/'+code).get(),12000);
-  if(!snap.exists()) throw new Error('not found');
-  sync.code=code; try{ localStorage.setItem('hive.house',code); }catch(e){}
-  sync.outbox=[]; saveOutbox();
-  syncAttach();
-}
-function syncLeave(){
-  if(sync.ref) sync.ref.off(); sync.ref=null; sync.code=null; sync.ready=false; sync.outbox=[]; saveOutbox();
-  try{ localStorage.removeItem('hive.house'); }catch(e){}
-}
-function inviteUrl(){ return location.origin+location.pathname+'?join='+sync.code+'&as='+(state.me==='a'?'b':'a'); }
-async function shareInvite(){
-  const text='הצטרפ/י לכוורת שלנו 🐝 המשימות והקניות של הבית במקום אחד.\nקוד הכוורת: '+fmtCode(sync.code)+'\n'+inviteUrl();
-  try{ if(navigator.share){ await navigator.share({title:'הכוורת',text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
-  try{ await navigator.clipboard.writeText(text); toast('ההזמנה הועתקה, שלחו אותה בוואטסאפ 📨'); }catch(e){ toast('הקוד: '+fmtCode(sync.code)); }
 }
 // A remote change while a sheet is open or the user is typing waits until they're done.
 let pendingRender=false;
@@ -548,7 +523,7 @@ function renderTop(){
         <div class="jar"><div class="row"><span>🍯 צנצנת הדבש השבועית</span><span class="num">${wp}/${goal}</span></div><div class="track"><div class="fill" style="width:${Math.min(100,wp/goal*100)}%"></div></div></div>
       </div>
     </div>`:''}`;
-  $$('#top [data-me]').forEach(b=>b.onclick=()=>{ state.me=b.dataset.me; save(); render(); toast('עכשיו '+userName(state.me)+' '+userEmoji(state.me)); });
+  $$('#top [data-me]').forEach(b=>b.onclick=()=>{ chooseMe(b.dataset.me); render(); toast('עכשיו '+userName(state.me)+' '+userEmoji(state.me)); });
 }
 
 /* ---------- render: today ---------- */
@@ -566,11 +541,17 @@ function renderToday(){
   const ds=today(); const due=dueOn(ds);
   const groups=[['morning','🌅 בוקר'],['evening','🌙 ערב'],['any','✨ מתי שנוח']];
   let html=installBanner();
-  if(!state.settings.onboarded){
+  const connecting=sync.enabled&&!sync.ready&&!sync.waitOver&&!sync.error;
+  if(connecting&&(!state.settings.onboarded||!meChosen)){
+    html+=`<div class="onboard" style="align-items:center;text-align:center"><h2>מתחברים לכוורת… 🐝</h2><p>רגע אחד, מביאים את המשימות המשותפות.</p></div>`;
+  } else if(!state.settings.onboarded){
     html+=`<div class="onboard"><h2>ברוכים הבאים לכוורת 🐝</h2><p>המקום שבו כל משימות הבית מסתדרות, ובדרך גם נהנים. איך קוראים לכם?</p>
       <div class="field"><label for="nameA">השם שלי</label><input id="nameA" class="input" value="${esc(state.users[0].name)}" placeholder="שם"></div>
       <div class="field"><label for="nameB">בת הזוג</label><input id="nameB" class="input" value="${esc(state.users[1].name)}" placeholder="שם"></div>
       <button class="btn primary block" id="onboardGo">יאללה, מתחילים 🚀</button></div>`;
+  } else if(!meChosen){
+    html+=`<div class="onboard"><h2>מי משתמש בטלפון הזה? 🐝</h2><p>כדי שהדבש יירשם לאדם הנכון. אפשר לשנות אחר כך בלחיצה על האווטאר למעלה.</p>
+      <div class="chips" id="obMe">${state.users.map(u=>`<button type="button" data-obme="${u.id}" class="btn ghost" style="font-size:18px">${u.emoji} ${esc(userName(u.id))}</button>`).join('')}</div></div>`;
   }
   const sort=(a,b)=>(isDone(a,ds)-isDone(b,ds))||a.title.localeCompare(b.title,'he');
   let any=false;
@@ -584,7 +565,8 @@ function renderToday(){
   bindTaskRows(ds);
   const ib=$('#installBtn'); if(ib) ib.onclick=async()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(e){} deferredPrompt=null; render(); };
   const ix=$('#installHide'); if(ix) ix.onclick=()=>{ try{ localStorage.setItem('hive.installHide','1'); }catch(e){} render(); };
-  const go=$('#onboardGo'); if(go) go.onclick=()=>{ state.users[0].name=$('#nameA').value.trim()||'רון'; state.users[1].name=$('#nameB').value.trim(); state.settings.onboarded=true; save(); sync.multi({'users/a/name':state.users[0].name,'users/b/name':state.users[1].name,'settings/onboarded':true}); beep('win'); render(); toast('נעים להכיר! 🐝'); };
+  const go=$('#onboardGo'); if(go) go.onclick=()=>{ state.users[0].name=$('#nameA').value.trim()||'רון'; state.users[1].name=$('#nameB').value.trim(); state.settings.onboarded=true; chooseMe('a'); sync.multi({'users/a/name':state.users[0].name,'users/b/name':state.users[1].name,'settings/onboarded':true}); beep('win'); render(); toast('נעים להכיר! 🐝'); };
+  $$('[data-obme]').forEach(b=>b.onclick=()=>{ chooseMe(b.dataset.obme); beep('win'); render(); toast('היי '+userName(state.me)+' '+userEmoji(state.me)); });
 }
 function bindTaskRows(ds){
   $$('.task').forEach(row=>{
@@ -670,35 +652,19 @@ function renderUs(){
       <div class="kv"><span class="k">🧹 המשימות כאן הן דוגמה. אפשר לערוך, למחוק, ולהתחיל נקי.</span><button class="btn sm danger" id="resetBtn">איפוס</button></div>
       <div id="resetConfirm"></div>
     </div>
-    <p class="note" style="text-align:center;margin-top:18px">הכוורת 🐝 · ${sync.code?'מסונכרן בין הטלפונים':'הנתונים נשמרים על המכשיר הזה בלבד'}</p>`;
+    <p class="note" style="text-align:center;margin-top:18px">הכוורת 🐝 · ${!sync.enabled?'הנתונים נשמרים על המכשיר הזה בלבד':sync.online?'מסונכרן בין הטלפונים':'לא מקוון, יסתנכרן כשיהיה אינטרנט'}</p>`;
   $$('[data-edituser]').forEach(b=>b.onclick=()=>openUserSheet(state.users.find(u=>u.id===b.dataset.edituser)));
   $('#rewardInput').onchange=e=>{ state.settings.reward=e.target.value.trim()||'משהו טעים 🍰'; save(); sync.push('settings/reward',state.settings.reward); toast('הפרס עודכן'); };
   $('#goalInput').onchange=e=>{ const v=parseInt(e.target.value,10); if(v>=5&&v<=500){ state.settings.goal=v; save(); sync.push('settings/goal',v); renderUs(); } };
   $('#soundSw').onclick=()=>{ state.settings.sound=!state.settings.sound; save(); renderUs(); if(state.settings.sound) beep('done'); };
   $('#resetBtn').onclick=()=>{ $('#resetConfirm').innerHTML=`<div class="confirm" style="margin-top:8px"><span>למחוק את כל המשימות, ההיסטוריה והקניות${sync.code?' (בשני הטלפונים)':''}?</span><span style="display:flex;gap:6px"><button class="btn sm ghost" id="resetNo">לא</button><button class="btn sm primary" id="resetYes">כן, נקי</button></span></div>`; $('#resetNo').onclick=()=>{ $('#resetConfirm').innerHTML=''; }; $('#resetYes').onclick=()=>{ const users=state.users, me=state.me, sound=state.settings.sound; state=seed(); state.users=users; state.me=me; state.tasks=[]; state.shop=[]; state.settings.onboarded=true; state.settings.sound=sound; save(); sync.multi({tasks:null,shop:null,done:null,'settings/onboarded':true}); render(); toast('התחלנו מחדש ✨'); }; };
-  bindSyncCard();
 }
 function syncCard(){
-  const status= !sync.enabled?'' : sync.error&&!sync.code?'<span style="color:var(--danger)">שגיאה</span>' : !sync.code?'' : sync.online?'🟢 מחובר' : '⚪ לא מקוון';
-  let body;
-  if(!sync.enabled) body=`<p class="note" style="margin:0">הסנכרון בין הטלפונים עוד לא הופעל בגרסה הזו. בינתיים כל טלפון שומר עותק משלו.</p>`;
-  else if(!sync.code) body=`<p class="note" style="margin:0 0 10px">כדי ששניכם תראו אותה רשימה: אחד מכם יוצר כוורת כאן, ושולח הזמנה לשני.</p>
-      <button class="btn primary block" id="syncCreate">🐝 יצירת כוורת משותפת</button>
-      <div class="inline" style="margin-top:10px"><input id="syncCodeIn" class="input" style="flex:1;width:auto;text-align:center;letter-spacing:.12em;text-transform:uppercase" placeholder="קיבלת קוד? הזינו אותו כאן" maxlength="9" autocapitalize="characters" autocomplete="off"><button class="btn ghost" id="syncJoin">הצטרפות</button></div>
-      <div id="syncMsg" class="note" style="margin:6px 0 0"></div>`;
-  else body=`<div class="kv" style="border-top:0;padding-top:0"><span class="k">קוד הכוורת שלכם</span><b class="num" style="font-size:20px;letter-spacing:.12em;font-family:var(--font-display)">${fmtCode(sync.code)}</b></div>
-      <button class="btn primary block" id="syncShare">📨 שליחת הזמנה ל${esc(userName(state.me==='a'?'b':'a'))||'בת הזוג'}</button>
-      <p class="note">בטלפון השני: פותחים את הקישור, או מתקינים את האפליקציה ומזינים את הקוד ידנית ב"אנחנו".</p>
-      <button class="btn sm danger" id="syncLeave" style="margin-top:4px">ניתוק הטלפון הזה מהכוורת</button><div id="syncConfirm"></div>`;
-  return `<div class="card"><h3>🔗 סנכרון בין הטלפונים<span class="rt">${status}</span></h3>${body}</div>`;
-}
-function bindSyncCard(){
-  const msg=t=>{ const el=$('#syncMsg'); if(el) el.textContent=t; else toast(t); };
-  const cr=$('#syncCreate'); if(cr) cr.onclick=async()=>{ cr.disabled=true; cr.textContent='רגע…'; try{ await syncCreate(); beep('win'); renderUs(); toast('הכוורת נוצרה! עכשיו שלחו הזמנה 📨'); }catch(e){ sync.error=e; renderUs(); msg('לא הצלחנו להתחבר. בדקו חיבור לאינטרנט ונסו שוב.'); } };
-  const jn=$('#syncJoin'); if(jn) jn.onclick=async()=>{ const code=normCode($('#syncCodeIn').value); if(code.length!==8){ msg('הקוד הוא 8 תווים, למשל ABCD-2345'); $('#syncCodeIn').focus(); return; } jn.disabled=true; try{ await syncJoin(code); beep('win'); renderUs(); toast('הצטרפת לכוורת! 🐝'); }catch(e){ jn.disabled=false; msg(e&&e.message==='not found'?'לא נמצאה כוורת עם הקוד הזה. בדקו את הקוד ונסו שוב.':'לא הצלחנו להתחבר. בדקו חיבור לאינטרנט ונסו שוב.'); } };
-  const ci=$('#syncCodeIn'); if(ci) ci.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#syncJoin').click(); } };
-  const sh=$('#syncShare'); if(sh) sh.onclick=shareInvite;
-  const lv=$('#syncLeave'); if(lv) lv.onclick=()=>{ $('#syncConfirm').innerHTML=`<div class="confirm" style="margin-top:8px"><span>לנתק? העותק המקומי נשאר, אבל שינויים כבר לא יסתנכרנו.</span><span style="display:flex;gap:6px"><button class="btn sm ghost" id="lvNo">לא</button><button class="btn sm primary" id="lvYes">נתק</button></span></div>`; $('#lvNo').onclick=()=>{ $('#syncConfirm').innerHTML=''; }; $('#lvYes').onclick=()=>{ syncLeave(); renderUs(); toast('הטלפון נותק מהכוורת'); }; };
+  if(!sync.enabled) return `<div class="card"><h3>🔗 סנכרון בין הטלפונים</h3><p class="note" style="margin:0">הסנכרון עוד לא הופעל בגרסה הזו. בינתיים כל טלפון שומר עותק משלו.</p></div>`;
+  const status= sync.error?'<span style="color:var(--danger)">שגיאה</span>' : sync.online?'🟢 מחובר' : '⚪ לא מקוון';
+  return `<div class="card"><h3>🔗 סנכרון בין הטלפונים<span class="rt">${status}</span></h3>
+    <div class="kv" style="border-top:0;padding-top:0"><span class="k">הטלפון הזה שייך ל</span><b>${userEmoji(state.me)} ${esc(userName(state.me))}</b></div>
+    <p class="note" style="margin:0">שני הטלפונים מחוברים לאותה כוורת אוטומטית. להחלפת המשתמש בטלפון הזה, הקישו על האווטאר למעלה.</p></div>`;
 }
 
 /* ---------- sheets ---------- */
