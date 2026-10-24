@@ -17,21 +17,27 @@ Home tasks are mostly *recurring* and *invisible*. The mental load of rememberin
 
 | Tab | Purpose |
 |---|---|
-| היום (Today) | Greeting, progress ring, honey jar, today's tasks by time of day. Tap the circle to complete. |
-| כל המשימות (All tasks) | Every recurring task grouped by category (גן, בית, custom). Tap to edit schedule, owner, points. Add categories. |
-| קניות (Shopping) | Shared grocery list. Quick-add, suggestion chips, check items in the store, clear cart. |
-| אנחנו (Us) | Both partners' weekly honey, the shared jar and reward, 7-day streak strip, settings. |
+| היום (Today) | Greeting, progress ring, both honey balances + the couple jar, everything due today from ניל and בית grouped by morning / evening / whenever. Quick-add box for a one-off task for today. |
+| ניל (Neil) | Checklists by sub-category (תיק לגן, בוקר, ערב ואמבטיה, בריאות, add your own). Today's items are checkable; items for other days sit in a folded row. |
+| בית (Home) | Home tasks: due today (checkable), the other recurring ones and projects, and an "on hold" shelf for things that aren't now (hang the shelf, sort the storage). One tap moves a task back to active. |
+| סופר (Super) | Shared grocery list. Quick-add, suggestion chips, check items in the store, clear cart. |
+| פרסים (Rewards) | Each partner's personal honey balance, the couple jar, reward lists (personal and couple) with prices and a redeem button, recent redemptions, 7-day streak, settings. |
 
 ## Task model
 
-- title, category, time of day (morning / evening / any)
-- owner: partner A, partner B, or "whoever gets to it first"
+- title, area (ניל / בית), Neil sub-category, home status (active / hold)
+- time of day (morning / evening / any)
+- owner: צ'ילד, נטן דה נטן, or "whoever gets to it first"
 - repeat: `days [0..6]` · `every N days from date` · `once on date` (one-offs carry over until done)
-- points: 1 / 2 / 3 honey drops (light / medium / heavy)
+- points: 1 / 2 / 3 / 5 honey
+
+## Points and rewards
+
+Every completed task gives its honey to the person who did it **and** to the shared jar. Personal rewards (massage, a dedicated song, a love letter, sleeping in, breakfast in bed, a free evening) are bought from one's own balance; the other partner delivers. Couple rewards (popcorn date on the couch, phone-free movie night, dinner out, morning coffee walk, board-game night) are bought from the jar. Rewards are editable; prices are in honey.
 
 ## What the demo does today
 
-Installable PWA in `app/` (index.html, manifest, service worker, icons). Works offline once installed. Both phones share one list through a Firebase Realtime Database "house" (code pairing from the אנחנו tab, invite link, offline outbox); without a Firebase config the app runs local-only. Hosted on GitHub Pages via the workflow in `.github/workflows/`. Setup steps are in README.md.
+Installable PWA in `app/` (index.html, manifest, service worker, icons). Works offline once installed. Both phones attach automatically to one Firebase Realtime Database "house" (no pairing; each phone only asks once who is using it; offline outbox). Hosted on GitHub Pages via the workflow in `.github/workflows/`. Setup steps are in README.md.
 
 Local preview: `python -m http.server 8765 --directory app` then open http://localhost:8765. Icons regenerate with `app/make-icons.ps1`.
 

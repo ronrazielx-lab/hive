@@ -23,7 +23,7 @@
   --bg:#F4F1FA; --card:#FFFFFF; --card2:#F9F7FD; --ink:#241F35; --muted:#7A7390; --line:#E7E2F1;
   --honey:#F2B233; --honey-deep:#D9931A; --honey-ink:#4A3200; --honey-soft:#FFF1CF;
   --good:#3FBF8A; --good-soft:#DDF6EA; --danger:#E5645A;
-  --gan:#4FAEE6; --home:#9B7BEA; --shop:#F4795A;
+  --neil:#4FAEE6; --home:#9B7BEA; --shop:#F4795A;
   --shadow:0 8px 24px rgba(70,50,120,.10); --shadow-sm:0 2px 8px rgba(70,50,120,.08);
   --r:20px; --r-sm:14px;
   --font-display:'Rubik','Heebo','Arial Hebrew',Arial,sans-serif;
@@ -58,9 +58,9 @@ main{flex:1;padding:8px 16px calc(120px + env(safe-area-inset-bottom,0px))}
 /* header */
 .top{padding:18px 16px 4px;display:flex;flex-direction:column;gap:14px}
 .hello{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.hello h1{font-size:26px;font-weight:800;letter-spacing:-.01em}
+.hello h1{font-size:24px;font-weight:800;letter-spacing:-.01em}
 .hello .date{color:var(--muted);font-size:14px;margin-top:2px}
-.me{display:flex;gap:6px;align-items:center;background:var(--card);border-radius:999px;padding:4px;box-shadow:var(--shadow-sm)}
+.me{display:flex;gap:6px;align-items:center;background:var(--card);border-radius:999px;padding:4px;box-shadow:var(--shadow-sm);flex:none}
 .me button{width:40px;height:40px;border-radius:50%;font-size:20px;display:grid;place-items:center;opacity:.45;transition:transform .2s,opacity .2s}
 .me button.on{opacity:1;background:var(--honey-soft);transform:scale(1.05)}
 .me .lbl{font-size:12px;color:var(--muted);padding:0 6px}
@@ -74,10 +74,9 @@ main{flex:1;padding:8px 16px calc(120px + env(safe-area-inset-bottom,0px))}
 .ring .txt{position:absolute;inset:0;display:grid;place-items:center;font-size:15px;font-weight:700}
 .summary .lines{display:flex;flex-direction:column;gap:8px;min-width:0}
 .summary .headline{font-family:var(--font-display);font-weight:700;font-size:17px}
-.jar{display:flex;flex-direction:column;gap:5px}
-.jar .row{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
-.jar .track{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
-.jar .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--honey),var(--honey-deep));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.bals{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.bals span{background:var(--card2);border-radius:999px;padding:2px 9px;white-space:nowrap}
+.bals span.us{background:var(--honey-soft);color:var(--honey-ink)}
 
 /* sections */
 .section{margin-top:18px}
@@ -116,35 +115,44 @@ main{flex:1;padding:8px 16px calc(120px + env(safe-area-inset-bottom,0px))}
 .input:focus{border-color:var(--honey);outline:none}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:14px;padding:12px 18px;font-weight:700;font-family:var(--font-display);font-size:16px;transition:transform .15s,filter .15s}
 .btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:default}
 .btn.primary{background:linear-gradient(135deg,var(--honey),var(--honey-deep));color:#2B1D00}
 .btn.ghost{background:var(--card2);color:var(--ink)}
 .btn.danger{background:transparent;color:var(--danger)}
 .btn.block{width:100%}
 .btn.sm{padding:8px 12px;font-size:14px;border-radius:10px}
 
-/* board */
+/* cards & boards */
 .catcard{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:12px}
 .catcard .head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:color-mix(in srgb,var(--c) 14%,var(--card))}
 .catcard .head .ico{width:40px;height:40px;border-radius:12px;background:var(--c);display:grid;place-items:center;font-size:20px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
 .catcard .head h3{font-size:18px;font-weight:700;flex:1}
 .catcard .head .cnt{color:var(--muted);font-size:13px}
 .catcard .items{display:flex;flex-direction:column}
+.catcard .list{padding:8px}
 .brow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);text-align:start;width:100%}
 .brow:hover{background:var(--card2)}
 .brow .t{font-weight:500}
 .brow .s{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap}
 .brow .av{font-size:20px}
+.holdrow{display:flex;align-items:center;border-top:1px solid var(--line)}
+.holdrow .brow{border-top:0;flex:1}
+.holdrow .act{width:44px;height:44px;margin-inline-end:8px;border-radius:12px;display:grid;place-items:center;background:var(--good-soft);color:var(--good);font-size:16px;flex:none}
 .catcard .addrow{padding:10px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;text-align:start;width:100%}
 .catcard .addrow:hover{color:var(--ink);background:var(--card2)}
+details.more summary{list-style:none;cursor:pointer;padding:8px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"▸ ";display:inline-block;transition:transform .2s}
+details.more[open] summary::before{transform:rotate(90deg)}
 .newcat{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--card2);border:2px dashed var(--line);border-radius:var(--r);padding:12px}
 .newcat .input{flex:1;min-width:120px}
 .swatches{display:flex;gap:6px}
 .swatches button{width:28px;height:28px;border-radius:50%;border:3px solid transparent}
 .swatches button.on{border-color:var(--ink)}
 
-/* shopping */
-.shopadd{display:flex;gap:8px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:6px 0 10px;z-index:2}
-.shopadd .input{flex:1}
+/* quick add (today + shop) */
+.quick{display:flex;gap:8px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:6px 0 10px;z-index:2}
+.quick .input{flex:1}
 .sugg{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px}
 .sugg button{font-size:13px;padding:6px 12px;border-radius:999px;background:var(--card);box-shadow:var(--shadow-sm);color:var(--ink)}
 .sugg button:hover{background:var(--honey-soft)}
@@ -159,9 +167,10 @@ main{flex:1;padding:8px 16px calc(120px + env(safe-area-inset-bottom,0px))}
 .sitem .del:hover{color:var(--danger);background:var(--card2)}
 .clearrow{display:flex;justify-content:space-between;align-items:center;margin-top:16px;color:var(--muted);font-size:14px}
 
-/* us */
+/* rewards */
 .people{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .person{background:var(--card);border-radius:var(--r);padding:16px 14px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;position:relative}
+.person.me{outline:2.5px solid var(--honey);outline-offset:-2.5px}
 .person .av{width:64px;height:64px;border-radius:50%;background:var(--card2);display:grid;place-items:center;font-size:34px}
 .person .nm{font-weight:700;font-family:var(--font-display);font-size:17px}
 .person .pts{font-size:30px;font-weight:800;font-family:var(--font-display);color:var(--honey-deep);line-height:1}
@@ -179,6 +188,15 @@ main{flex:1;padding:8px 16px calc(120px + env(safe-area-inset-bottom,0px))}
 .honeypot::before{content:"";position:absolute;top:-3px;left:14px;right:14px;height:12px;border-radius:0 0 8px 8px;background:var(--line)}
 .honeypot .lvl{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,var(--honey),var(--honey-deep));transition:height .8s cubic-bezier(.2,.8,.2,1)}
 .honeypot .lvl::after{content:"";position:absolute;top:-6px;left:0;right:0;height:12px;background:var(--honey);border-radius:50%;opacity:.9}
+.reward{display:grid;grid-template-columns:44px 1fr auto 32px;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.reward:first-of-type{border-top:0}
+.reward .em{width:44px;height:44px;border-radius:12px;background:var(--card2);display:grid;place-items:center;font-size:24px}
+.reward .t{font-weight:500}
+.reward .s{font-size:12px;color:var(--muted)}
+.reward .more{width:32px;height:32px;border-radius:50%;color:var(--muted);display:grid;place-items:center}
+.redeemed{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.redeemed:first-of-type{border-top:0}
+.redeemed .when{margin-inline-start:auto;color:var(--muted);font-size:12px;white-space:nowrap}
 .kv{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);align-items:center}
 .kv:first-of-type{border-top:0}
 .kv .k{color:var(--muted);font-size:14px}
@@ -190,12 +208,11 @@ main{flex:1;padding:8px 16px calc(120px + env(safe-area-inset-bottom,0px))}
 
 /* tabs & fab */
 .tabs{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;z-index:20;pointer-events:none}
-.tabs .bar{pointer-events:auto;width:100%;max-width:560px;display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgba(60,40,100,.08)}
-.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:14px;color:var(--muted);font-size:12px;font-weight:500;transition:color .2s,background .2s}
+.tabs .bar{pointer-events:auto;width:100%;max-width:560px;display:grid;grid-template-columns:repeat(5,1fr);background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgba(60,40,100,.08)}
+.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:14px;color:var(--muted);font-size:11.5px;font-weight:500;transition:color .2s,background .2s}
 .tabs button .i{font-size:22px;line-height:1.2;transition:transform .25s cubic-bezier(.2,1.6,.4,1)}
 .tabs button.on{color:var(--honey-ink);background:var(--honey-soft)}
 .tabs button.on .i{transform:translateY(-2px) scale(1.1)}
-.tabs button .badge{position:absolute}
 .fab{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom,0px));inset-inline-end:calc(50% - 280px + 16px);width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--honey),var(--honey-deep));color:#2B1D00;font-size:32px;font-weight:400;display:grid;place-items:center;box-shadow:0 10px 24px rgba(217,147,26,.45);z-index:21;transition:transform .2s}
 .fab:active{transform:scale(.94)}
 @media (max-width:592px){.fab{inset-inline-end:16px}}
@@ -219,6 +236,7 @@ main{flex:1;padding:8px 16px calc(120px + env(safe-area-inset-bottom,0px))}
 .actions{display:flex;gap:10px;margin-top:6px;align-items:center}
 .actions .primary{flex:1}
 .confirm{background:color-mix(in srgb,var(--danger) 12%,var(--card));border-radius:12px;padding:10px 12px;display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:14px}
+.confirm.ok{background:var(--honey-soft)}
 
 /* toast & confetti */
 #toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;font-family:var(--font-display);opacity:0;transition:all .3s;z-index:40;pointer-events:none;max-width:90vw;text-align:center}
@@ -246,9 +264,10 @@ main{flex:1;padding:8px 16px calc(120px + env(safe-area-inset-bottom,0px))}
 <nav class="tabs" aria-label="ניווט">
   <div class="bar" id="tabs">
     <button data-tab="today"><span class="i">☀️</span>היום</button>
-    <button data-tab="board"><span class="i">🗂️</span>כל המשימות</button>
-    <button data-tab="shop"><span class="i">🛒</span>קניות</button>
-    <button data-tab="us"><span class="i">🐝</span>אנחנו</button>
+    <button data-tab="neil"><span class="i">👶</span>ניל</button>
+    <button data-tab="home"><span class="i">🏠</span>בית</button>
+    <button data-tab="shop"><span class="i">🛒</span>סופר</button>
+    <button data-tab="rewards"><span class="i">🏆</span>פרסים</button>
   </div>
 </nav>
 <div id="sheetRoot"></div>
@@ -263,7 +282,6 @@ document.documentElement.setAttribute('lang','he');
 
 /* ---------- config ---------- */
 // Firebase Realtime Database config. Leave empty to run in local-only mode (each phone keeps its own copy).
-// Fill from Firebase console → Project settings → Your apps → SDK setup and configuration.
 const FIREBASE={
   apiKey:'AIzaSyCL3U_oKvtxCUX5V-MGkZyA7HbGoivnlg8', authDomain:'hive-40adf.firebaseapp.com', databaseURL:'https://hive-40adf-default-rtdb.europe-west1.firebasedatabase.app', projectId:'hive-40adf', appId:'1:883346030809:web:3fc49283c17c152d233ec8'
 };
@@ -272,11 +290,12 @@ const FIREBASE_SDK='https://www.gstatic.com/firebasejs/12.4.0/';
 const HOUSE='A8KK9VKF';
 
 /* ---------- helpers ---------- */
-const KEY='hive.v1';
+const KEY='hive.v2';
 const DAYS=['א','ב','ג','ד','ה','ו','ש'];
 const DAYS_FULL=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
 const CAT_COLORS=['#4FAEE6','#9B7BEA','#F4795A','#3FBF8A','#F2B233','#E96BAE','#5AC8C8'];
 const AVATARS=['🧔🏻','👩🏻','👨🏻','👩🏻‍🦱','🧑🏻','👩🏽','🐻','🦊','🐰','🐼','🦁','🐨'];
+const AREAS={neil:{name:'ניל',emoji:'👶',color:'#4FAEE6'},home:{name:'בית',emoji:'🏠',color:'#9B7BEA'}};
 const uid=()=>Math.random().toString(36).slice(2,9);
 const pad=n=>String(n).padStart(2,'0');
 const dstr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
@@ -291,44 +310,76 @@ const $$=(sel,root)=> Array.from((root||document).querySelectorAll(sel));
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- state ---------- */
-function T(title,cat,when,who,repeat,pts){return {id:uid(),title,cat,when,who,repeat,pts:pts||1,created:today()};}
-function S(name){return {id:uid(),name,checked:false,by:'a',at:Date.now()};}
+function T(title,area,cat,when,who,repeat,pts,status){ return {id:uid(),title,area,cat:cat||null,when,who,repeat,pts:pts||1,status:status||'active',created:today()}; }
+function R(title,emoji,scope,cost){ return {id:uid(),title,emoji,scope,cost}; }
+function S(name){ return {id:uid(),name,checked:false,by:'a',at:Date.now()}; }
+const GAN=[0,1,2,3,4], ALL=[0,1,2,3,4,5,6];
 function seed(){
   const t=today();
   return {
-    v:1,
-    users:[{id:'a',name:'רון',emoji:'🧔🏻'},{id:'b',name:'',emoji:'👩🏻'}],
+    v:2,
+    users:[{id:'a',name:"צ'ילד",emoji:'🧔🏻'},{id:'b',name:'נטן דה נטן',emoji:'👩🏻'}],
     me:'a',
     cats:[
-      {id:'gan',name:'גן',emoji:'🎒',color:'#4FAEE6'},
-      {id:'home',name:'בית',emoji:'🏠',color:'#9B7BEA'},
+      {id:'bag',name:'תיק לגן',emoji:'🎒',color:'#4FAEE6'},
+      {id:'morning',name:'בוקר',emoji:'🌅',color:'#F2B233'},
+      {id:'evening',name:'ערב ואמבטיה',emoji:'🛁',color:'#9B7BEA'},
+      {id:'health',name:'בריאות',emoji:'🩺',color:'#3FBF8A'},
     ],
     tasks:[
-      T('לבדוק שיש חיתולים בתיק של ניל','gan','morning','any',{type:'days',days:[0,1,2,3,4]},1),
-      T('בקבוק מים לניל','gan','morning','any',{type:'days',days:[0,1,2,3,4]},1),
-      T('קרם הגנה לפני היציאה','gan','morning','any',{type:'days',days:[0,1,2,3,4]},1),
-      T('בגדים להחלפה בתיק','gan','morning','any',{type:'days',days:[0]},1),
-      T('להביא הביתה את הכביסה מהגן','gan','evening','any',{type:'days',days:[4]},1),
-      T('לרוקן את המדיח','home','evening','any',{type:'days',days:[0,1,2,3,4,5,6]},1),
-      T('סידור סלון לפני השינה','home','evening','any',{type:'days',days:[0,1,2,3,4,5,6]},1),
-      T('כביסה','home','any','a',{type:'every',n:2,from:t},2),
-      T('להוציא זבל','home','evening','b',{type:'days',days:[0,2,4]},1),
-      T('לנקות מקלחת','home','any','any',{type:'days',days:[5]},3),
-      T('שואב אבק','home','any','any',{type:'days',days:[5]},2),
-      T('לסדר את החדר של ניל','home','any','any',{type:'days',days:[6]},2),
+      // ניל
+      T('לבדוק שיש חיתולים בתיק','neil','bag','morning','any',{type:'days',days:GAN},1),
+      T('בקבוק מים','neil','bag','morning','any',{type:'days',days:GAN},1),
+      T('בגדים להחלפה בתיק','neil','bag','morning','any',{type:'days',days:[0]},1),
+      T('להביא הביתה את הכביסה מהגן','neil','bag','evening','any',{type:'days',days:[4]},1),
+      T('ארוחת בוקר','neil','morning','morning','any',{type:'days',days:ALL},1),
+      T('קרם הגנה לפני היציאה','neil','morning','morning','any',{type:'days',days:GAN},1),
+      T('צחצוח שיניים בוקר','neil','morning','morning','any',{type:'days',days:ALL},1),
+      T('אמבטיה','neil','evening','evening','any',{type:'days',days:ALL},2),
+      T('צחצוח שיניים ערב','neil','evening','evening','any',{type:'days',days:ALL},1),
+      T('סיפור לפני השינה','neil','evening','evening','any',{type:'days',days:ALL},1),
+      T('להכין בגדים למחר','neil','evening','evening','any',{type:'days',days:GAN},1),
+      T('ויטמין D','neil','health','morning','any',{type:'days',days:ALL},1),
+      // בית — פעיל
+      T('לרוקן את המדיח','home',null,'evening','any',{type:'days',days:ALL},1),
+      T('סידור סלון לפני השינה','home',null,'evening','any',{type:'days',days:ALL},1),
+      T('כביסה','home',null,'any','any',{type:'every',n:2,from:t},2),
+      T('להוציא זבל','home',null,'evening','any',{type:'days',days:[0,2,4]},1),
+      T('לנקות מקלחת','home',null,'any','any',{type:'days',days:[5]},3),
+      T('שואב אבק','home',null,'any','any',{type:'days',days:[5]},2),
+      T('לסדר את החדר של ניל','home',null,'any','any',{type:'days',days:[6]},2),
+      // בית — בהולד
+      T('לתלות את המדף בסלון','home',null,'any','any',{type:'once',date:t},3,'hold'),
+      T('לסדר את המחסן','home',null,'any','any',{type:'once',date:t},3,'hold'),
     ],
+    rewards:[
+      R('מסאז׳ של 20 דקות','💆',  'me',15),
+      R('שיר מוקדש (בקול, בלי להתבייש)','🎤','me',10),
+      R('ברכה / מכתב אהבה','💌','me',8),
+      R('בוקר של שינה עד מאוחר','😴','me',20),
+      R('ארוחת בוקר למיטה','🥞','me',18),
+      R('ערב חופשי, בלי שאלות','🍺','me',25),
+      R('דייט פופקורן על הספה','🍿','us',30),
+      R('ערב סרט בלי טלפונים','📵','us',25),
+      R('ארוחה בחוץ','🍝','us',60),
+      R('קפה וטיול בוקר ביחד','☕','us',40),
+      R('ערב משחקי קופסה','🎲','us',35),
+    ],
+    redeemed:{},
     done:{},
     shop:[S('חלב 3%'),S('חיתולים מידה 4'),S('מגבונים'),S('בננות'),S('לחם'),S('ביצים')],
-    settings:{sound:true,goal:40,reward:'ערב סרט בלי טלפונים 🍿',onboarded:false}
+    settings:{sound:true}
   };
 }
 let state;
 try{ const raw=localStorage.getItem(KEY); state=raw?JSON.parse(raw):seed(); }catch(e){ state=seed(); }
-if(!state||!state.tasks) state=seed();
+if(!state||!state.tasks||state.v!==2) state=seed();
+if(!state.rewards) state.rewards=[]; if(!state.redeemed) state.redeemed={};
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} }
 
 let tab='today';
 try{ tab=sessionStorage.getItem('hive.tab')||'today'; }catch(e){}
+if(!['today','neil','home','shop','rewards'].includes(tab)) tab='today';
 
 // Per-device: has this phone's owner been chosen yet?
 let meChosen=false;
@@ -337,14 +388,14 @@ function chooseMe(id){ state.me=id; meChosen=true; save(); try{ localStorage.set
 
 /* ---------- domain ---------- */
 function isDue(t,ds){
-  const r=t.repeat||{type:'days',days:[0,1,2,3,4,5,6]};
+  const r=t.repeat||{type:'days',days:ALL};
   const dow=parse(ds).getDay();
   if(r.type==='days') return (r.days||[]).includes(dow);
   if(r.type==='every'){ const n=Math.max(1,r.n||1); const from=r.from||ds; const df=diffDays(from,ds); return df>=0 && df%n===0; }
   if(r.type==='once'){ if(t.doneOnce && t.doneOnce!==ds) return false; return ds>=r.date; }
   return false;
 }
-function dueOn(ds){ return state.tasks.filter(t=>isDue(t,ds)); }
+function dueOn(ds){ return state.tasks.filter(t=>t.status!=='hold'&&isDue(t,ds)); }
 function isDone(t,ds){ return !!state.done[t.id+'|'+ds]; }
 function toggle(t,ds){
   const k=t.id+'|'+ds; const once=t.repeat&&t.repeat.type==='once';
@@ -359,11 +410,13 @@ function toggle(t,ds){
   const m={}; m['done/'+k]=state.done[k]; if(once) m['tasks/'+t.id+'/doneOnce']=ds; sync.multi(m);
   return true;
 }
-function weekPoints(uidv){
-  const ws=weekStart(today()), we=addDays(ws,6); let sum=0;
-  for(const k in state.done){ const d=state.done[k]; if(d.date>=ws&&d.date<=we&&(!uidv||d.by===uidv)) sum+=d.pts||1; }
-  return sum;
-}
+// points: every completed task gives honey to the doer AND to the shared jar
+function earned(uidv){ let s=0; for(const k in state.done){ const d=state.done[k]; if(!uidv||d.by===uidv) s+=d.pts||1; } return s; }
+function spent(scope,uidv){ let s=0; for(const k in state.redeemed){ const r=state.redeemed[k]; if(r.scope===scope&&(!uidv||r.by===uidv)) s+=r.cost||0; } return s; }
+function balance(uidv){ return earned(uidv)-spent('me',uidv); }
+function jar(){ return earned()-spent('us'); }
+function canAfford(r){ return r.scope==='us' ? jar()>=r.cost : balance(state.me)>=r.cost; }
+function nextReward(scope,uidv){ const bal=scope==='us'?jar():balance(uidv); const list=state.rewards.filter(r=>r.scope===scope).sort((a,b)=>a.cost-b.cost); return list.find(r=>r.cost>bal)||null; }
 function totalDone(uidv){ let n=0; for(const k in state.done){ if(state.done[k].by===uidv) n++; } return n; }
 function dayRatio(ds){ const due=dueOn(ds); if(!due.length) return null; return due.filter(t=>isDone(t,ds)).length/due.length; }
 function streak(){
@@ -374,24 +427,25 @@ function streak(){
 }
 function userName(id){ const u=state.users.find(u=>u.id===id); if(!u) return ''; return u.name||(id==='a'?'אני':'בת הזוג'); }
 function userEmoji(id){ const u=state.users.find(u=>u.id===id); return u?u.emoji:'🙂'; }
-function cat(id){ return state.cats.find(c=>c.id===id)||{id,name:'?',emoji:'📌',color:'#999'}; }
+function cat(id){ return state.cats.find(c=>c.id===id)||null; }
 function repeatLabel(r){
   if(!r) return 'כל יום';
   if(r.type==='once') return 'חד־פעמי · '+fmtShort(r.date);
   if(r.type==='every') return r.n===1?'כל יום':'כל '+r.n+' ימים';
   const d=r.days||[];
   if(d.length===7) return 'כל יום';
-  if(d.length===5&&[0,1,2,3,4].every(x=>d.includes(x))) return 'ימי גן (א׳–ה׳)';
+  if(d.length===5&&GAN.every(x=>d.includes(x))) return 'ימי גן (א׳–ה׳)';
   if(d.length===1) return 'כל יום '+DAYS_FULL[d[0]];
   if(d.length===0) return 'לא מתוזמן';
   return d.slice().sort().map(x=>DAYS[x]+'׳').join(' ');
 }
 function fmtShort(ds){ try{ return new Intl.DateTimeFormat('he-IL',{day:'numeric',month:'short'}).format(parse(ds)); }catch(e){ return ds; } }
+function fmtWhen(ts){ try{ return new Intl.DateTimeFormat('he-IL',{day:'numeric',month:'short'}).format(new Date(ts)); }catch(e){ return ''; } }
 function greeting(){ const h=new Date().getHours(); if(h<5) return 'לילה טוב'; if(h<12) return 'בוקר טוב'; if(h<17) return 'צהריים טובים'; if(h<21) return 'ערב טוב'; return 'לילה טוב'; }
 function heDate(){ try{ return new Intl.DateTimeFormat('he-IL',{weekday:'long',day:'numeric',month:'long'}).format(new Date()); }catch(e){ return today(); } }
 
-/* ---------- sync: Firebase Realtime Database, one "house" per couple ---------- */
-// Server layout: houses/<code>/{users/{a,b}, cats/<id>, tasks/<id>, done/<taskId|date>, shop/<id>, settings/{goal,reward,onboarded}}
+/* ---------- sync: Firebase Realtime Database, one shared "house" ---------- */
+// Server layout: houses/<code>/{users/{a,b}, cats/<id>, tasks/<id>, rewards/<id>, redeemed/<id>, done/<taskId|date>, shop/<id>}
 // Per-device only (never synced): state.me, settings.sound.
 // Writes are small targeted ops queued in an outbox (localStorage) so nothing is lost if the app closes while offline.
 const sync={
@@ -399,7 +453,6 @@ const sync={
   code:null, db:null, ref:null, online:false, ready:false, error:null, outbox:[], flushing:false, waitOver:false,
 };
 if(sync.enabled) sync.code=HOUSE;
-// If the first snapshot hasn't arrived after a few seconds (offline, first ever open), stop waiting and show the app.
 setTimeout(()=>{ sync.waitOver=true; if(!sync.ready) scheduleRender(); },8000);
 try{ sync.outbox=JSON.parse(localStorage.getItem('hive.outbox')||'[]')||[]; }catch(e){ sync.outbox=[]; }
 function saveOutbox(){ try{ localStorage.setItem('hive.outbox',JSON.stringify(sync.outbox)); }catch(e){} }
@@ -417,25 +470,28 @@ async function flushOutbox(){
   sync.flushing=false;
 }
 function toServer(st){
-  const o={users:{},cats:{},tasks:{},done:st.done||{},shop:{},settings:{goal:st.settings.goal||40,reward:st.settings.reward||'',onboarded:!!st.settings.onboarded}};
+  const o={v:2,users:{},cats:{},tasks:{},rewards:{},redeemed:st.redeemed||{},done:st.done||{},shop:{}};
   st.users.forEach(u=>o.users[u.id]=u);
   st.cats.forEach((c,i)=>o.cats[c.id]=Object.assign({},c,{order:i}));
   st.tasks.forEach(t=>o.tasks[t.id]=t);
+  st.rewards.forEach((r,i)=>o.rewards[r.id]=Object.assign({},r,{order:i}));
   st.shop.forEach(s=>o.shop[s.id]=s);
   return o;
 }
 function fromServer(v){
-  v=v||{}; const s=v.settings||{};
-  const defU=[{id:'a',name:'',emoji:'🧔🏻'},{id:'b',name:'',emoji:'👩🏻'}];
+  v=v||{};
+  const defU=[{id:'a',name:"צ'ילד",emoji:'🧔🏻'},{id:'b',name:'נטן דה נטן',emoji:'👩🏻'}];
   return {
-    v:1,
+    v:2,
     users: defU.map(d=>Object.assign(d,(v.users||{})[d.id]||{})),
     me: state.me,
     cats: Object.values(v.cats||{}).sort((a,b)=>(a.order||0)-(b.order||0)),
     tasks: Object.values(v.tasks||{}),
+    rewards: Object.values(v.rewards||{}).sort((a,b)=>(a.order||0)-(b.order||0)),
+    redeemed: v.redeemed||{},
     done: v.done||{},
     shop: Object.values(v.shop||{}).sort((a,b)=>(b.at||0)-(a.at||0)),
-    settings:{sound:state.settings.sound!==false,goal:s.goal||40,reward:s.reward||'משהו טעים 🍰',onboarded:s.onboarded!==false}
+    settings:{sound:state.settings.sound!==false}
   };
 }
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.async=true; s.onload=res; s.onerror=()=>rej(new Error('load '+src)); document.head.appendChild(s); }); }
@@ -445,8 +501,8 @@ async function syncInit(){
     await loadScript(FIREBASE_SDK+'firebase-app-compat.js');
     await loadScript(FIREBASE_SDK+'firebase-database-compat.js');
     firebase.initializeApp(FIREBASE); sync.db=firebase.database();
-    sync.db.ref('.info/connected').on('value',s=>{ sync.online=!!s.val(); if(sync.online) flushOutbox(); if(tab==='us') scheduleRender(); });
-  }catch(e){ sync.error=e; if(tab==='us') scheduleRender(); return; }
+    sync.db.ref('.info/connected').on('value',s=>{ sync.online=!!s.val(); if(sync.online) flushOutbox(); if(tab==='rewards') scheduleRender(); });
+  }catch(e){ sync.error=e; sync.waitOver=true; scheduleRender(); return; }
   syncAttach();
 }
 let seeded=false;
@@ -456,8 +512,8 @@ function syncAttach(){
   sync.ref=sync.db.ref('houses/'+sync.code);
   sync.ref.on('value',snap=>{
     const v=snap.val();
-    if(v===null){ // nothing on the server yet: this is the very first phone, its local copy becomes the shared one
-      if(!seeded){ seeded=true; sync.ref.set(toServer(state)).catch(e=>{ sync.error=e; scheduleRender(); }); }
+    if(v===null||v.v!==2){ // nothing (or an old layout) on the server: this phone's copy becomes the shared one
+      if(!seeded){ seeded=true; if(v&&v.v!==2) state=seed(); sync.ref.set(toServer(state)).catch(e=>{ sync.error=e; scheduleRender(); }); }
       return;
     }
     state=fromServer(v); sync.ready=true; sync.error=null; save(); scheduleRender();
@@ -490,13 +546,13 @@ function beep(kind){
 }
 function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
 let toastT;
-function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2200); }
+function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2400); }
 function confetti(){
   if(reduced) return;
   const c=$('#confetti'), ctx=c.getContext('2d'); c.width=innerWidth; c.height=innerHeight;
   const cols=['#F2B233','#4FAEE6','#9B7BEA','#F4795A','#3FBF8A','#E96BAE'];
   const ps=Array.from({length:140},()=>({x:innerWidth/2+(Math.random()-0.5)*120,y:innerHeight*0.55,vx:(Math.random()-0.5)*14,vy:-Math.random()*16-6,r:4+Math.random()*5,c:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*Math.PI,va:(Math.random()-0.5)*0.3}));
-  let f=0; const start=performance.now();
+  const start=performance.now();
   function step(now){
     ctx.clearRect(0,0,c.width,c.height);
     ps.forEach(p=>{p.vy+=0.45;p.x+=p.vx;p.y+=p.vy;p.vx*=0.99;p.a+=p.va;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);ctx.restore();});
@@ -509,9 +565,10 @@ function confetti(){
 function renderTop(){
   const ds=today(); const due=dueOn(ds); const done=due.filter(t=>isDone(t,ds)).length; const total=due.length;
   const pct=total?done/total:0; const C=2*Math.PI*30;
-  const wp=weekPoints(); const goal=state.settings.goal||40;
   const meName=userName(state.me);
   const headline= total===0?'אין משימות להיום. יום חופשי! 🌴' : done===total?'סיימתם את כל המשימות של היום 🎉' : done===0?'יש '+total+' משימות היום. יאללה!' : 'נשארו '+(total-done)+' משימות. כמעט שם!';
+  const nx=nextReward('us'); const j=jar();
+  const jarLine= nx ? 'עוד '+(nx.cost-j)+' 🍯 ל'+nx.title+' '+nx.emoji : (state.rewards.some(r=>r.scope==='us')?'הצנצנת מלאה! יש פרס זוגי לממש 🏆':'');
   $('#top').innerHTML=`
     <div class="hello">
       <div><h1>${esc(greeting())}, ${esc(meName)} 👋</h1><div class="date">${esc(heDate())}</div></div>
@@ -520,107 +577,144 @@ function renderTop(){
     ${tab==='today'?`<div class="summary">
       <div class="ring"><svg viewBox="0 0 72 72"><circle class="track" cx="36" cy="36" r="30"/><circle class="bar ${pct===0?"zero":""}" cx="36" cy="36" r="30" stroke-dasharray="${(C*pct).toFixed(1)} ${C.toFixed(1)}"/></svg><div class="txt num">${done}/${total}</div></div>
       <div class="lines"><div class="headline">${esc(headline)}</div>
-        <div class="jar"><div class="row"><span>🍯 צנצנת הדבש השבועית</span><span class="num">${wp}/${goal}</span></div><div class="track"><div class="fill" style="width:${Math.min(100,wp/goal*100)}%"></div></div></div>
+        <div class="bals">${state.users.map(u=>`<span>${u.emoji} ${balance(u.id)} 🍯</span>`).join('')}<span class="us">🫙 ${j} 🍯</span></div>
+        ${jarLine?`<div class="note" style="margin:0">${esc(jarLine)}</div>`:''}
       </div>
     </div>`:''}`;
   $$('#top [data-me]').forEach(b=>b.onclick=()=>{ chooseMe(b.dataset.me); render(); toast('עכשיו '+userName(state.me)+' '+userEmoji(state.me)); });
 }
 
-/* ---------- render: today ---------- */
-function taskRow(t,ds){
-  const c=cat(t.cat); const d=isDone(t,ds); const rec=state.done[t.id+'|'+ds];
+/* ---------- shared rows ---------- */
+function taskRow(t,ds,opts){
+  opts=opts||{}; const d=isDone(t,ds); const rec=state.done[t.id+'|'+ds];
+  const area=AREAS[t.area]||AREAS.home; const c=t.area==='neil'?cat(t.cat):null; const col=c?c.color:area.color;
   const who= t.who==='any' ? (d&&rec?`<span class="chip">${userEmoji(rec.by)} ${esc(userName(rec.by))}</span>`:`<span class="chip">🤝 מי שמגיע קודם</span>`) : `<span class="chip">${userEmoji(t.who)} ${esc(userName(t.who))}</span>`;
-  return `<div class="task ${d?'done':''}" style="--c:${c.color}" data-id="${t.id}">
+  const tag= opts.showArea ? `<span class="chip cat" style="--c:${col}">${area.emoji} ${esc(area.name)}${c?' · '+esc(c.name):''}</span>` : '';
+  const once= t.repeat&&t.repeat.type==='once' ? `<span class="chip">📌 חד־פעמי</span>` : '';
+  return `<div class="task ${d?'done':''}" style="--c:${col}" data-id="${t.id}">
     <button class="check" aria-pressed="${d}" aria-label="${d?'בטל סיום':'סיימתי'}: ${esc(t.title)}"><span>✓</span></button>
     <div class="body" role="button" tabindex="0"><div class="title">${esc(t.title)}</div>
-      <div class="meta"><span class="chip cat" style="--c:${c.color}">${c.emoji} ${esc(c.name)}</span>${who}<span class="chip pts">🍯${t.pts>1?' ×'+t.pts:''}</span></div></div>
+      <div class="meta">${tag}${once}${who}<span class="chip pts">🍯${t.pts>1?' ×'+t.pts:''}</span></div></div>
     <button class="more" aria-label="עריכה">✎</button>
   </div>`;
 }
-function renderToday(){
-  const ds=today(); const due=dueOn(ds);
-  const groups=[['morning','🌅 בוקר'],['evening','🌙 ערב'],['any','✨ מתי שנוח']];
-  let html=installBanner();
-  const connecting=sync.enabled&&!sync.ready&&!sync.waitOver&&!sync.error;
-  if(connecting&&(!state.settings.onboarded||!meChosen)){
-    html+=`<div class="onboard" style="align-items:center;text-align:center"><h2>מתחברים לכוורת… 🐝</h2><p>רגע אחד, מביאים את המשימות המשותפות.</p></div>`;
-  } else if(!state.settings.onboarded){
-    html+=`<div class="onboard"><h2>ברוכים הבאים לכוורת 🐝</h2><p>המקום שבו כל משימות הבית מסתדרות, ובדרך גם נהנים. איך קוראים לכם?</p>
-      <div class="field"><label for="nameA">השם שלי</label><input id="nameA" class="input" value="${esc(state.users[0].name)}" placeholder="שם"></div>
-      <div class="field"><label for="nameB">בת הזוג</label><input id="nameB" class="input" value="${esc(state.users[1].name)}" placeholder="שם"></div>
-      <button class="btn primary block" id="onboardGo">יאללה, מתחילים 🚀</button></div>`;
-  } else if(!meChosen){
-    html+=`<div class="onboard"><h2>מי משתמש בטלפון הזה? 🐝</h2><p>כדי שהדבש יירשם לאדם הנכון. אפשר לשנות אחר כך בלחיצה על האווטאר למעלה.</p>
-      <div class="chips" id="obMe">${state.users.map(u=>`<button type="button" data-obme="${u.id}" class="btn ghost" style="font-size:18px">${u.emoji} ${esc(userName(u.id))}</button>`).join('')}</div></div>`;
-  }
-  const sort=(a,b)=>(isDone(a,ds)-isDone(b,ds))||a.title.localeCompare(b.title,'he');
-  let any=false;
-  groups.forEach(([k,label])=>{
-    const list=due.filter(t=>(t.when||'any')===k).sort(sort); if(!list.length) return; any=true;
-    const dn=list.filter(t=>isDone(t,ds)).length;
-    html+=`<section class="section"><h2>${label}<span class="cnt num">${dn}/${list.length}</span></h2><div class="list">${list.map(t=>taskRow(t,ds)).join('')}</div></section>`;
-  });
-  if(!any) html+=`<div class="empty" style="margin-top:16px"><b>אין משימות להיום</b>אפשר להוסיף משימה עם הכפתור הצהוב, או פשוט לנוח ☕</div>`;
-  $('#view').innerHTML=html;
-  bindTaskRows(ds);
-  const ib=$('#installBtn'); if(ib) ib.onclick=async()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(e){} deferredPrompt=null; render(); };
-  const ix=$('#installHide'); if(ix) ix.onclick=()=>{ try{ localStorage.setItem('hive.installHide','1'); }catch(e){} render(); };
-  const go=$('#onboardGo'); if(go) go.onclick=()=>{ state.users[0].name=$('#nameA').value.trim()||'רון'; state.users[1].name=$('#nameB').value.trim(); state.settings.onboarded=true; chooseMe('a'); sync.multi({'users/a/name':state.users[0].name,'users/b/name':state.users[1].name,'settings/onboarded':true}); beep('win'); render(); toast('נעים להכיר! 🐝'); };
-  $$('[data-obme]').forEach(b=>b.onclick=()=>{ chooseMe(b.dataset.obme); beep('win'); render(); toast('היי '+userName(state.me)+' '+userEmoji(state.me)); });
-}
 function bindTaskRows(ds){
   $$('.task').forEach(row=>{
-    const t=state.tasks.find(x=>x.id===row.dataset.id); if(!t) return;
     $('.check',row).onclick=()=>{
-      const t=state.tasks.find(x=>x.id===row.dataset.id); if(!t) return; // re-lookup: state may have been replaced by a sync snapshot
+      const t=state.tasks.find(x=>x.id===row.dataset.id); if(!t) return;
+      const before=balance(state.me);
       const nowDone=toggle(t,ds);
       if(nowDone){ beep('done'); buzz(20); } else beep('undo');
       const due=dueOn(ds); const all=due.length&&due.every(x=>isDone(x,ds));
       render();
       if(nowDone&&all){ beep('win'); buzz([30,50,30]); confetti(); toast('כל הכבוד! סיימתם את היום 🎉'); }
-      else if(nowDone){ const wp=weekPoints(); if(wp>=state.settings.goal&&wp-(t.pts||1)<state.settings.goal){ confetti(); toast('הצנצנת מלאה! מגיע לכם: '+state.settings.reward); } }
+      else if(nowDone){
+        const after=balance(state.me);
+        const unlocked=state.rewards.filter(r=>r.scope==='me'&&r.cost>before&&r.cost<=after)[0];
+        if(unlocked){ confetti(); toast('יש לך מספיק דבש ל'+unlocked.title+' '+unlocked.emoji); }
+      }
     };
     const open=()=>{ const cur=state.tasks.find(x=>x.id===row.dataset.id); if(cur) openTaskSheet(cur); };
     $('.more',row).onclick=open; const body=$('.body',row); body.onclick=open; body.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } };
   });
 }
+const whenL={morning:'בוקר',evening:'ערב',any:'מתי שנוח'};
+function brow(t){
+  const who=t.who==='any'?'🤝':userEmoji(t.who);
+  return `<button class="brow" data-edit="${t.id}"><div><div class="t">${esc(t.title)}</div><div class="s"><span>${esc(repeatLabel(t.repeat))}</span><span>·</span><span>${whenL[t.when||'any']}</span><span>·</span><span>🍯${t.pts>1?' ×'+t.pts:''}</span></div></div><div class="av">${who}</div></button>`;
+}
+function bindBrows(){ $$('[data-edit]').forEach(b=>b.onclick=()=>{ const t=state.tasks.find(x=>x.id===b.dataset.edit); if(t) openTaskSheet(t); }); }
 
-/* ---------- render: board ---------- */
-let newCatOpen=false, newCatColor=CAT_COLORS[3];
-function renderBoard(){
-  const who=t=>t.who==='any'?'🤝':userEmoji(t.who);
-  const whenL={morning:'בוקר',evening:'ערב',any:'מתי שנוח'};
-  let html=`<p class="note" style="margin:6px 4px 12px">כל המשימות החוזרות, לפי קטגוריה. לחיצה על משימה פותחת עריכה.</p>`;
-  state.cats.forEach(c=>{
-    const list=state.tasks.filter(t=>t.cat===c.id).sort((a,b)=>a.title.localeCompare(b.title,'he'));
-    html+=`<div class="catcard" style="--c:${c.color}"><div class="head"><div class="ico">${c.emoji}</div><h3>${esc(c.name)}</h3><span class="cnt num">${list.length} משימות</span><button class="btn sm ghost" data-editcat="${c.id}" aria-label="עריכת קטגוריה">✎</button></div>
-      <div class="items">${list.map(t=>`<button class="brow" data-edit="${t.id}"><div><div class="t">${esc(t.title)}</div><div class="s"><span>${esc(repeatLabel(t.repeat))}</span><span>·</span><span>${whenL[t.when||'any']}</span><span>·</span><span>🍯${t.pts>1?' ×'+t.pts:''}</span></div></div><div class="av">${who(t)}</div></button>`).join('')}
-      <button class="addrow" data-add="${c.id}">+ הוספת משימה ל${esc(c.name)}</button></div></div>`;
+/* ---------- render: today ---------- */
+function renderToday(){
+  const ds=today(); const due=dueOn(ds);
+  const groups=[['morning','🌅 בוקר'],['evening','🌙 ערב'],['any','✨ מתי שנוח']];
+  let html=installBanner();
+  const connecting=sync.enabled&&!sync.ready&&!sync.waitOver&&!sync.error;
+  if(connecting&&!meChosen){
+    html+=`<div class="onboard" style="align-items:center;text-align:center"><h2>מתחברים לכוורת… 🐝</h2><p>רגע אחד, מביאים את המשימות המשותפות.</p></div>`;
+  } else if(!meChosen){
+    html+=`<div class="onboard"><h2>מי משתמש בטלפון הזה? 🐝</h2><p>כדי שהדבש יירשם לאדם הנכון. אפשר לשנות אחר כך בלחיצה על האווטאר למעלה.</p>
+      <div class="chips" id="obMe">${state.users.map(u=>`<button type="button" data-obme="${u.id}" class="btn ghost" style="font-size:18px">${u.emoji} ${esc(userName(u.id))}</button>`).join('')}</div></div>`;
+  }
+  html+=`<form class="quick" id="quickForm" style="margin-top:12px"><input id="quickInput" class="input" placeholder="משימה להיום… (חד־פעמית)" autocomplete="off" enterkeyhint="done" maxlength="80"><button class="btn primary" type="submit">הוספה</button></form>`;
+  const sort=(a,b)=>(isDone(a,ds)-isDone(b,ds))||a.title.localeCompare(b.title,'he');
+  let any=false;
+  groups.forEach(([k,label])=>{
+    const list=due.filter(t=>(t.when||'any')===k).sort(sort); if(!list.length) return; any=true;
+    const dn=list.filter(t=>isDone(t,ds)).length;
+    html+=`<section class="section"><h2>${label}<span class="cnt num">${dn}/${list.length}</span></h2><div class="list">${list.map(t=>taskRow(t,ds,{showArea:true})).join('')}</div></section>`;
   });
-  html+= newCatOpen ? `<div class="newcat"><input id="newCatEmoji" class="input" style="width:64px;text-align:center" value="📌" aria-label="אימוג׳י"><input id="newCatName" class="input" placeholder="שם הקטגוריה (למשל: רכב, גינה, חיות)" aria-label="שם הקטגוריה"><div class="swatches">${CAT_COLORS.map(col=>`<button data-col="${col}" class="${col===newCatColor?'on':''}" style="background:${col}" aria-label="צבע"></button>`).join('')}</div><button class="btn primary sm" id="newCatSave">שמירה</button><button class="btn ghost sm" id="newCatCancel">ביטול</button></div>`
-                    : `<button class="btn ghost block" id="newCatBtn">+ קטגוריה חדשה</button>`;
+  if(!any) html+=`<div class="empty" style="margin-top:16px"><b>אין משימות להיום</b>אפשר להוסיף משימה למעלה, או פשוט לנוח ☕</div>`;
   $('#view').innerHTML=html;
-  $$('[data-edit]').forEach(b=>b.onclick=()=>openTaskSheet(state.tasks.find(t=>t.id===b.dataset.edit)));
-  $$('[data-add]').forEach(b=>b.onclick=()=>openTaskSheet(null,b.dataset.add));
-  $$('[data-editcat]').forEach(b=>b.onclick=()=>openCatSheet(cat(b.dataset.editcat)));
-  const nb=$('#newCatBtn'); if(nb) nb.onclick=()=>{ newCatOpen=true; renderBoard(); $('#newCatName').focus(); };
-  const nc=$('#newCatCancel'); if(nc) nc.onclick=()=>{ newCatOpen=false; renderBoard(); };
-  $$('[data-col]').forEach(b=>b.onclick=()=>{ newCatColor=b.dataset.col; $$('[data-col]').forEach(x=>x.classList.toggle('on',x===b)); });
-  const ns=$('#newCatSave'); if(ns) ns.onclick=()=>{ const name=$('#newCatName').value.trim(); if(!name){ $('#newCatName').focus(); return; } const c={id:uid(),name,emoji:$('#newCatEmoji').value.trim()||'📌',color:newCatColor,order:state.cats.length}; state.cats.push(c); newCatOpen=false; save(); sync.push('cats/'+c.id,c); renderBoard(); toast('הקטגוריה נוספה'); };
+  bindTaskRows(ds);
+  $('#quickForm').onsubmit=e=>{ e.preventDefault(); const v=$('#quickInput').value.trim(); if(!v) return; const t=T(v,'home',null,'any','any',{type:'once',date:ds},1); state.tasks.push(t); save(); sync.push('tasks/'+t.id,t); beep('done'); render(); toast('נוסף להיום 📌'); };
+  const ib=$('#installBtn'); if(ib) ib.onclick=async()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(e){} deferredPrompt=null; render(); };
+  const ix=$('#installHide'); if(ix) ix.onclick=()=>{ try{ localStorage.setItem('hive.installHide','1'); }catch(e){} render(); };
+  $$('[data-obme]').forEach(b=>b.onclick=()=>{ chooseMe(b.dataset.obme); beep('win'); render(); toast('היי '+userName(state.me)+' '+userEmoji(state.me)); });
 }
 
-/* ---------- render: shopping ---------- */
-const SUGG=['חלב','לחם','ביצים','חיתולים','מגבונים','בננות','גבינה צהובה','עגבניות','מלפפונים','יוגורט','קוטג׳','נייר טואלט','סבון כלים','דייסה'];
+/* ---------- render: ניל ---------- */
+let newCatOpen=false, newCatColor=CAT_COLORS[3];
+function renderNeil(){
+  const ds=today();
+  let html=`<p class="note" style="margin:6px 4px 12px">הצ׳קליסטים של ניל, לפי נושא. מסמנים מה שנעשה היום; הפריטים שלא להיום מחכים בתיקייה.</p>`;
+  state.cats.forEach(c=>{
+    const all=state.tasks.filter(t=>t.area==='neil'&&t.cat===c.id).sort((a,b)=>a.title.localeCompare(b.title,'he'));
+    const due=all.filter(t=>isDue(t,ds)), rest=all.filter(t=>!isDue(t,ds));
+    const dn=due.filter(t=>isDone(t,ds)).length;
+    html+=`<div class="catcard" style="--c:${c.color}"><div class="head"><div class="ico">${c.emoji}</div><h3>${esc(c.name)}</h3><span class="cnt num">${due.length?dn+'/'+due.length+' היום':'לא להיום'}</span><button class="btn sm ghost" data-editcat="${c.id}" aria-label="עריכת קטגוריה">✎</button></div>
+      ${due.length?`<div class="list">${due.sort((a,b)=>(isDone(a,ds)-isDone(b,ds))).map(t=>taskRow(t,ds)).join('')}</div>`:''}
+      ${rest.length?`<details class="more"><summary>עוד ${rest.length} פריטים לימים אחרים</summary>${rest.map(brow).join('')}</details>`:''}
+      <button class="addrow" data-add="${c.id}">+ הוספה ל${esc(c.name)}</button></div>`;
+  });
+  const orphans=state.tasks.filter(t=>t.area==='neil'&&!cat(t.cat));
+  if(orphans.length) html+=`<div class="catcard" style="--c:#999"><div class="head"><div class="ico">📌</div><h3>ללא קטגוריה</h3></div>${orphans.map(brow).join('')}</div>`;
+  html+= newCatOpen ? `<div class="newcat"><input id="newCatEmoji" class="input" style="width:64px;text-align:center" value="📌" aria-label="אימוג׳י"><input id="newCatName" class="input" placeholder="שם הקטגוריה (למשל: רופא, חוגים)" aria-label="שם הקטגוריה"><div class="swatches">${CAT_COLORS.map(col=>`<button data-col="${col}" class="${col===newCatColor?'on':''}" style="background:${col}" aria-label="צבע"></button>`).join('')}</div><button class="btn primary sm" id="newCatSave">שמירה</button><button class="btn ghost sm" id="newCatCancel">ביטול</button></div>`
+                    : `<button class="btn ghost block" id="newCatBtn">+ קטגוריה חדשה לניל</button>`;
+  $('#view').innerHTML=html;
+  bindTaskRows(ds); bindBrows();
+  $$('[data-add]').forEach(b=>b.onclick=()=>openTaskSheet(null,{area:'neil',cat:b.dataset.add}));
+  $$('[data-editcat]').forEach(b=>b.onclick=()=>openCatSheet(cat(b.dataset.editcat)));
+  const nb=$('#newCatBtn'); if(nb) nb.onclick=()=>{ newCatOpen=true; renderNeil(); $('#newCatName').focus(); };
+  const nc=$('#newCatCancel'); if(nc) nc.onclick=()=>{ newCatOpen=false; renderNeil(); };
+  $$('[data-col]').forEach(b=>b.onclick=()=>{ newCatColor=b.dataset.col; $$('[data-col]').forEach(x=>x.classList.toggle('on',x===b)); });
+  const ns=$('#newCatSave'); if(ns) ns.onclick=()=>{ const name=$('#newCatName').value.trim(); if(!name){ $('#newCatName').focus(); return; } const c={id:uid(),name,emoji:$('#newCatEmoji').value.trim()||'📌',color:newCatColor,order:state.cats.length}; state.cats.push(c); newCatOpen=false; save(); sync.push('cats/'+c.id,c); renderNeil(); toast('הקטגוריה נוספה'); };
+}
+
+/* ---------- render: בית ---------- */
+function renderHome(){
+  const ds=today();
+  const home=state.tasks.filter(t=>t.area==='home');
+  const active=home.filter(t=>t.status!=='hold'), hold=home.filter(t=>t.status==='hold');
+  const dueT=active.filter(t=>isDue(t,ds)).sort((a,b)=>(isDone(a,ds)-isDone(b,ds))||a.title.localeCompare(b.title,'he'));
+  const other=active.filter(t=>!isDue(t,ds)).sort((a,b)=>a.title.localeCompare(b.title,'he'));
+  const dn=dueT.filter(t=>isDone(t,ds)).length;
+  let html=`<section class="section" style="margin-top:6px"><h2>✅ להיום<span class="cnt num">${dn}/${dueT.length}</span></h2>
+    ${dueT.length?`<div class="list">${dueT.map(t=>taskRow(t,ds)).join('')}</div>`:`<div class="empty"><b>אין משימות בית להיום</b>אפשר להוסיף עם הכפתור הצהוב 🐝</div>`}</section>`;
+  html+=`<section class="section"><h2>🔁 קבועות ופרויקטים<span class="cnt num">${other.length}</span></h2>
+    <div class="catcard" style="--c:var(--home)">${other.length?other.map(brow).join(''):'<p class="note" style="padding:12px 16px;margin:0">כל המשימות הקבועות הן להיום.</p>'}<button class="addrow" id="addHome">+ משימת בית חדשה</button></div></section>`;
+  html+=`<section class="section"><h2>⏸️ בהולד<span class="cnt num">${hold.length}</span></h2>
+    <div class="catcard" style="--c:#999">${hold.length?hold.map(t=>`<div class="holdrow">${brow(t)}<button class="act" data-activate="${t.id}" aria-label="הפעלה">▶</button></div>`).join(''):'<p class="note" style="padding:12px 16px;margin:0">אין משימות בהמתנה. דברים שלא דחופים עכשיו (לתלות מדף, לסדר מחסן) חיים כאן עד שמגיע הזמן.</p>'}<button class="addrow" id="addHold">+ משהו לפעם אחרת</button></div></section>`;
+  $('#view').innerHTML=html;
+  bindTaskRows(ds); bindBrows();
+  $('#addHome').onclick=()=>openTaskSheet(null,{area:'home'});
+  $('#addHold').onclick=()=>openTaskSheet(null,{area:'home',status:'hold'});
+  $$('[data-activate]').forEach(b=>b.onclick=()=>{ const t=state.tasks.find(x=>x.id===b.dataset.activate); if(!t) return; t.status='active'; if(t.repeat&&t.repeat.type==='once'&&t.repeat.date<ds) t.repeat.date=ds; save(); sync.push('tasks/'+t.id,t); beep('done'); renderHome(); toast('הופעל! עכשיו זה ברשימה 💪'); });
+}
+
+/* ---------- render: סופר ---------- */
+const SUGG=['חלב','לחם','ביצים','חיתולים','מגבונים','בננות','גבינה צהובה','עגבניות','מלפפונים','יוגורט','קוטג׳','נייר טואלט','סבון כלים','דייסה','מחית פירות','קורנפלקס'];
 function renderShop(){
   const open=state.shop.filter(s=>!s.checked), done=state.shop.filter(s=>s.checked);
   const have=new Set(state.shop.map(s=>s.name));
   const item=s=>`<div class="sitem ${s.checked?'on':''}" data-sid="${s.id}"><button class="check" aria-label="${s.checked?'החזר לרשימה':'קניתי'}"><span>✓</span></button><div><div class="n">${esc(s.name)}</div><div class="by">${userEmoji(s.by)} ${esc(userName(s.by))}</div></div><button class="del" aria-label="מחיקה">×</button></div>`;
   $('#view').innerHTML=`
-    <form class="shopadd" id="shopForm"><input id="shopInput" class="input" placeholder="מה צריך לקנות?" autocomplete="off" enterkeyhint="done"><button class="btn primary" type="submit">הוספה</button></form>
+    <form class="quick" id="shopForm"><input id="shopInput" class="input" placeholder="מה צריך לקנות?" autocomplete="off" enterkeyhint="done"><button class="btn primary" type="submit">הוספה</button></form>
     <div class="sugg">${SUGG.filter(s=>!have.has(s)).slice(0,8).map(s=>`<button type="button" data-sugg="${esc(s)}">+ ${esc(s)}</button>`).join('')}</div>
     ${open.length?`<div class="list">${open.map(item).join('')}</div>`:`<div class="empty"><b>הרשימה ריקה</b>נגמר משהו? הוסיפו אותו כאן ושניכם תראו אותו בסופר.</div>`}
     ${done.length?`<div class="clearrow"><span>בעגלה (${done.length})</span><button class="btn sm ghost" id="clearDone">נקה מסומנים</button></div><div class="list" style="margin-top:8px">${done.map(item).join('')}</div>`:''}
-    <p class="note">טיפ: הסופר הוא הרגע שהאפליקציה הזו הכי מוכיחה את עצמה. פתחו את רשימת הקניות בטלפון וסמנו בזמן שאתם ממלאים את העגלה.</p>`;
+    <p class="note">מוסיפים כל פעם שנגמר משהו, ובסופר מסמנים תוך כדי מילוי העגלה.</p>`;
   const add=name=>{ name=name.trim(); if(!name) return; const s={id:uid(),name,checked:false,by:state.me,at:Date.now()}; state.shop.unshift(s); save(); sync.push('shop/'+s.id,s); renderShop(); beep('done'); };
   $('#shopForm').onsubmit=e=>{ e.preventDefault(); add($('#shopInput').value); };
   $$('[data-sugg]').forEach(b=>b.onclick=()=>add(b.dataset.sugg));
@@ -632,39 +726,49 @@ function renderShop(){
   const cd=$('#clearDone'); if(cd) cd.onclick=()=>{ const m={}; state.shop.filter(s=>s.checked).forEach(s=>m['shop/'+s.id]=null); state.shop=state.shop.filter(s=>!s.checked); save(); sync.multi(m); renderShop(); toast('העגלה נוקתה 🛒'); };
 }
 
-/* ---------- render: us ---------- */
-function renderUs(){
-  const ds=today(); const ws=weekStart(ds); const goal=state.settings.goal||40; const wp=weekPoints(); const st=streak();
+/* ---------- render: פרסים ---------- */
+let rewardScope='me';
+function renderRewards(){
+  const ds=today(); const ws=weekStart(ds); const st=streak(); const j=jar();
   const week=Array.from({length:7},(_,i)=>{ const d=addDays(ws,i); const r=dayRatio(d); return {d,r,future:d>ds}; });
+  const list=state.rewards.filter(r=>r.scope===rewardScope).sort((a,b)=>a.cost-b.cost);
+  const usMax=Math.max(1,...state.rewards.filter(r=>r.scope==='us').map(r=>r.cost));
+  const nxUs=nextReward('us');
+  const recent=Object.entries(state.redeemed).map(([id,r])=>Object.assign({id},r)).sort((a,b)=>b.at-a.at).slice(0,6);
   $('#view').innerHTML=`
-    <div class="people">${state.users.map(u=>`<div class="person"><button class="edit" data-edituser="${u.id}" aria-label="עריכה">✎</button><div class="av">${u.emoji}</div><div class="nm">${esc(userName(u.id))}</div><div class="pts">${weekPoints(u.id)} 🍯</div><div class="sub">השבוע · ${totalDone(u.id)} משימות בסך הכל</div></div>`).join('')}</div>
-    <div class="card"><h3>🍯 צנצנת הדבש המשותפת<span class="rt num">${wp}/${goal}</span></h3>
-      <div class="bigjar"><div class="honeypot"><div class="lvl" style="height:${Math.min(100,wp/goal*100)}%"></div></div>
-        <div><div style="font-size:14px;color:var(--muted)">כשמגיעים ל־${goal} טיפות דבש בשבוע, מגיע לכם:</div><input class="input" id="rewardInput" value="${esc(state.settings.reward)}" style="margin-top:8px" aria-label="הפרס השבועי"></div></div>
-      <p class="note">זה לא תחרות ביניכם, זו קבוצה. שני השמות ממלאים אותה צנצנת.</p></div>
+    <div class="people">${state.users.map(u=>`<div class="person ${u.id===state.me?'me':''}"><button class="edit" data-edituser="${u.id}" aria-label="עריכה">✎</button><div class="av">${u.emoji}</div><div class="nm">${esc(userName(u.id))}</div><div class="pts">${balance(u.id)} 🍯</div><div class="sub">דבש אישי לממש · ${totalDone(u.id)} משימות</div></div>`).join('')}</div>
+    <div class="card"><h3>🫙 הצנצנת הזוגית<span class="rt num">${j} 🍯</span></h3>
+      <div class="bigjar"><div class="honeypot"><div class="lvl" style="height:${Math.min(100,j/usMax*100)}%"></div></div>
+        <div style="font-size:14px;color:var(--muted)">כל משימה מוסיפה דבש גם לכם וגם לצנצנת. ${nxUs?'עוד <b>'+(nxUs.cost-j)+'</b> ל'+esc(nxUs.title)+' '+nxUs.emoji:'יש פרס זוגי לממש! 🏆'}</div></div></div>
+    <div class="card"><h3>🏆 פרסים<span class="rt"><span class="chips" id="rwScope"><button data-scope="me" class="${rewardScope==='me'?'on':''}">אישי</button><button data-scope="us" class="${rewardScope==='us'?'on':''}">זוגי</button></span></span></h3>
+      <p class="note" style="margin:0 0 8px">${rewardScope==='me'?'ממומן מהדבש האישי של '+esc(userName(state.me))+'. הפרס? מי שלא מימש/ה נותן/ת 😉':'ממומן מהצנצנת המשותפת. לשניכם.'}</p>
+      ${list.length?list.map(r=>`<div class="reward" data-rid="${r.id}"><div class="em">${r.emoji||'🎁'}</div><div><div class="t">${esc(r.title)}</div><div class="s num">${r.cost} 🍯</div></div><button class="btn sm ${canAfford(r)?'primary':'ghost'}" data-redeem="${r.id}" ${canAfford(r)?'':'disabled'}>לממש</button><button class="more" data-editreward="${r.id}" aria-label="עריכה">✎</button></div>`).join(''):'<p class="note">אין פרסים עדיין. הוסיפו משהו שבא לכם 🎁</p>'}
+      <div id="rwConfirm"></div>
+      <button class="btn ghost block" id="addReward" style="margin-top:10px">+ פרס חדש</button></div>
+    ${recent.length?`<div class="card"><h3>🎁 מימושים אחרונים</h3>${recent.map(r=>`<div class="redeemed"><span>${r.emoji||'🎁'}</span><span>${r.scope==='us'?'שניכם':userEmoji(r.by)+' '+esc(userName(r.by))} · ${esc(r.title)}</span><span class="when">${fmtWhen(r.at)} · ${r.cost} 🍯</span></div>`).join('')}</div>`:''}
     <div class="card"><h3>📅 השבוע<span class="rt">רצף: ${st} ימים 🔥</span></h3>
       <div class="week">${week.map(w=>{ const dow=parse(w.d).getDay(); const bg= w.r===null?'var(--line)': w.future?'var(--line)': w.r>=1?'var(--good)': w.r>0?'color-mix(in srgb,var(--good) '+Math.round(w.r*70+15)+'%,var(--line))':'var(--line)'; return `<div class="d ${w.d===ds?'today':''}"><div class="dot" style="background:${bg}">${w.r!==null&&!w.future?(w.r>=1?'✓':Math.round(w.r*100)+'%'):''}</div><span>${DAYS[dow]}׳</span></div>`; }).join('')}</div>
       <p class="note">רצף = ימים רצופים שבהם כל המשימות של היום הושלמו.</p></div>
-    ${syncCard()}
     <div class="card"><h3>⚙️ הגדרות</h3>
       <div class="kv"><span class="k">🔊 צלילים בסיום משימה</span><button class="switch ${state.settings.sound?'on':''}" id="soundSw" role="switch" aria-checked="${state.settings.sound}" aria-label="צלילים"></button></div>
-      <div class="kv"><span class="k">🎯 יעד שבועי (טיפות דבש)</span><input class="input num" id="goalInput" type="number" min="5" max="500" value="${goal}" style="width:90px;text-align:center"></div>
-      <div class="kv"><span class="k">🧹 המשימות כאן הן דוגמה. אפשר לערוך, למחוק, ולהתחיל נקי.</span><button class="btn sm danger" id="resetBtn">איפוס</button></div>
+      <div class="kv"><span class="k">🔗 סנכרון</span><span>${!sync.enabled?'כבוי':sync.error?'<span style="color:var(--danger)">שגיאה</span>':sync.online?'🟢 מחובר':'⚪ לא מקוון'}</span></div>
+      <div class="kv"><span class="k">📱 הטלפון הזה שייך ל</span><b>${userEmoji(state.me)} ${esc(userName(state.me))}</b></div>
+      <div class="kv"><span class="k">🧹 איפוס מלא: משימות, היסטוריה, דבש וקניות (בשני הטלפונים).</span><button class="btn sm danger" id="resetBtn">איפוס</button></div>
       <div id="resetConfirm"></div>
     </div>
     <p class="note" style="text-align:center;margin-top:18px">הכוורת 🐝 · ${!sync.enabled?'הנתונים נשמרים על המכשיר הזה בלבד':sync.online?'מסונכרן בין הטלפונים':'לא מקוון, יסתנכרן כשיהיה אינטרנט'}</p>`;
   $$('[data-edituser]').forEach(b=>b.onclick=()=>openUserSheet(state.users.find(u=>u.id===b.dataset.edituser)));
-  $('#rewardInput').onchange=e=>{ state.settings.reward=e.target.value.trim()||'משהו טעים 🍰'; save(); sync.push('settings/reward',state.settings.reward); toast('הפרס עודכן'); };
-  $('#goalInput').onchange=e=>{ const v=parseInt(e.target.value,10); if(v>=5&&v<=500){ state.settings.goal=v; save(); sync.push('settings/goal',v); renderUs(); } };
-  $('#soundSw').onclick=()=>{ state.settings.sound=!state.settings.sound; save(); renderUs(); if(state.settings.sound) beep('done'); };
-  $('#resetBtn').onclick=()=>{ $('#resetConfirm').innerHTML=`<div class="confirm" style="margin-top:8px"><span>למחוק את כל המשימות, ההיסטוריה והקניות${sync.code?' (בשני הטלפונים)':''}?</span><span style="display:flex;gap:6px"><button class="btn sm ghost" id="resetNo">לא</button><button class="btn sm primary" id="resetYes">כן, נקי</button></span></div>`; $('#resetNo').onclick=()=>{ $('#resetConfirm').innerHTML=''; }; $('#resetYes').onclick=()=>{ const users=state.users, me=state.me, sound=state.settings.sound; state=seed(); state.users=users; state.me=me; state.tasks=[]; state.shop=[]; state.settings.onboarded=true; state.settings.sound=sound; save(); sync.multi({tasks:null,shop:null,done:null,'settings/onboarded':true}); render(); toast('התחלנו מחדש ✨'); }; };
-}
-function syncCard(){
-  if(!sync.enabled) return `<div class="card"><h3>🔗 סנכרון בין הטלפונים</h3><p class="note" style="margin:0">הסנכרון עוד לא הופעל בגרסה הזו. בינתיים כל טלפון שומר עותק משלו.</p></div>`;
-  const status= sync.error?'<span style="color:var(--danger)">שגיאה</span>' : sync.online?'🟢 מחובר' : '⚪ לא מקוון';
-  return `<div class="card"><h3>🔗 סנכרון בין הטלפונים<span class="rt">${status}</span></h3>
-    <div class="kv" style="border-top:0;padding-top:0"><span class="k">הטלפון הזה שייך ל</span><b>${userEmoji(state.me)} ${esc(userName(state.me))}</b></div>
-    <p class="note" style="margin:0">שני הטלפונים מחוברים לאותה כוורת אוטומטית. להחלפת המשתמש בטלפון הזה, הקישו על האווטאר למעלה.</p></div>`;
+  $$('#rwScope button').forEach(b=>b.onclick=()=>{ rewardScope=b.dataset.scope; renderRewards(); });
+  $$('[data-editreward]').forEach(b=>b.onclick=()=>openRewardSheet(state.rewards.find(r=>r.id===b.dataset.editreward)));
+  $('#addReward').onclick=()=>openRewardSheet(null);
+  $$('[data-redeem]').forEach(b=>b.onclick=()=>{
+    const r=state.rewards.find(x=>x.id===b.dataset.redeem); if(!r||!canAfford(r)) return;
+    $('#rwConfirm').innerHTML=`<div class="confirm ok" style="margin-top:8px"><span>לממש "${esc(r.title)}" ב־${r.cost} 🍯?</span><span style="display:flex;gap:6px"><button class="btn sm ghost" id="rdNo">לא</button><button class="btn sm primary" id="rdYes">כן! 🎉</button></span></div>`;
+    $('#rdNo').onclick=()=>{ $('#rwConfirm').innerHTML=''; };
+    $('#rdYes').onclick=()=>{ const id=uid(); const rec={rewardId:r.id,title:r.title,emoji:r.emoji||'🎁',scope:r.scope,cost:r.cost,by:state.me,at:Date.now()}; state.redeemed[id]=rec; save(); sync.push('redeemed/'+id,rec); beep('win'); buzz([30,50,30]); confetti(); renderRewards(); toast(r.scope==='us'?'מגיע לכם: '+r.title+' '+rec.emoji:'מגיע לך: '+r.title+' '+rec.emoji); };
+  });
+  $('#soundSw').onclick=()=>{ state.settings.sound=!state.settings.sound; save(); renderRewards(); if(state.settings.sound) beep('done'); };
+  $('#resetBtn').onclick=()=>{ $('#resetConfirm').innerHTML=`<div class="confirm" style="margin-top:8px"><span>למחוק הכול ולהתחיל מהרשימות המוכנות?</span><span style="display:flex;gap:6px"><button class="btn sm ghost" id="resetNo">לא</button><button class="btn sm primary" id="resetYes">כן, מאפס</button></span></div>`; $('#resetNo').onclick=()=>{ $('#resetConfirm').innerHTML=''; }; $('#resetYes').onclick=()=>{ const users=state.users, me=state.me, sound=state.settings.sound; state=seed(); state.users=users; state.me=me; state.settings.sound=sound; save(); if(sync.ref) sync.ref.set(toServer(state)).catch(()=>{}); render(); toast('התחלנו מחדש ✨'); }; };
 }
 
 /* ---------- sheets ---------- */
@@ -677,32 +781,35 @@ function openSheet(html){
 }
 function escClose(e){ if(e.key==='Escape') closeSheet(); }
 function closeSheet(){ $('#sheetRoot').innerHTML=''; document.removeEventListener('keydown',escClose); if(pendingRender) render(); }
+const chips=(arr,val,attr)=>arr.map(([v,l])=>`<button type="button" data-${attr}="${v}" class="${String(val)===String(v)?'on':''}">${l}</button>`).join('');
+const pick=(sel,attr,cb)=>$$(sel+' button').forEach(b=>b.onclick=()=>{ $$(sel+' button').forEach(x=>x.classList.toggle('on',x===b)); cb(b.dataset[attr]); });
 
-function openTaskSheet(t,presetCat){
-  const isNew=!t;
-  const d= t? JSON.parse(JSON.stringify(t)) : {title:'',cat:presetCat||(state.cats[0]&&state.cats[0].id),when:'morning',who:'any',repeat:{type:'days',days:[0,1,2,3,4,5,6]},pts:1};
-  if(!d.repeat) d.repeat={type:'days',days:[0,1,2,3,4,5,6]};
-  const chips=(arr,key,val,attr)=>arr.map(([v,l])=>`<button type="button" data-${attr}="${v}" class="${val===v?'on':''}">${l}</button>`).join('');
+function openTaskSheet(t,preset){
+  const isNew=!t; preset=preset||{};
+  const d= t? JSON.parse(JSON.stringify(t)) : {title:'',area:preset.area||'home',cat:preset.cat||(preset.area==='neil'&&state.cats[0]?state.cats[0].id:null),when:preset.area==='neil'?'morning':'any',who:'any',repeat:preset.status==='hold'?{type:'once',date:today()}:{type:'days',days:ALL},pts:1,status:preset.status||'active'};
+  if(!d.repeat) d.repeat={type:'days',days:ALL};
   const rtype= d.repeat.type;
-  const preset= rtype==='every'?'every': rtype==='once'?'once': (d.repeat.days||[]).length===7?'daily': ((d.repeat.days||[]).length===5&&[0,1,2,3,4].every(x=>d.repeat.days.includes(x)))?'gan':'custom';
+  const presetR= rtype==='every'?'every': rtype==='once'?'once': (d.repeat.days||[]).length===7?'daily': ((d.repeat.days||[]).length===5&&GAN.every(x=>d.repeat.days.includes(x)))?'gan':'custom';
   openSheet(`
     <h2>${isNew?'משימה חדשה':'עריכת משימה'}</h2>
     <form class="frm" id="taskForm">
       <div><input id="tTitle" class="input" placeholder="מה צריך לעשות?" value="${esc(d.title)}" required maxlength="80" aria-label="שם המשימה"></div>
-      <div><span class="lbl">קטגוריה</span><div class="chips" id="tCat">${state.cats.map(c=>`<button type="button" data-cat="${c.id}" class="${d.cat===c.id?'on':''}">${c.emoji} ${esc(c.name)}</button>`).join('')}</div></div>
-      <div><span class="lbl">מתי ביום</span><div class="chips" id="tWhen">${chips([['morning','🌅 בוקר'],['evening','🌙 ערב'],['any','✨ מתי שנוח']],'when',d.when||'any','when')}</div></div>
-      <div><span class="lbl">מי אחראי</span><div class="chips" id="tWho">${chips([['any','🤝 מי שמגיע קודם'],...state.users.map(u=>[u.id,u.emoji+' '+userName(u.id)])],'who',d.who,'who')}</div></div>
-      <div><span class="lbl">חוזר על עצמו</span><div class="chips" id="tPreset">${chips([['daily','כל יום'],['gan','ימי גן (א׳–ה׳)'],['custom','ימים מסוימים'],['every','כל X ימים'],['once','חד־פעמי']],'preset',preset,'preset')}</div>
-        <div id="tDays" class="chips days" style="margin-top:10px" ${preset==='custom'?'':'hidden'}>${DAYS.map((l,i)=>`<button type="button" data-day="${i}" class="${(d.repeat.days||[]).includes(i)?'on':''}" aria-label="${DAYS_FULL[i]}">${l}׳</button>`).join('')}</div>
-        <div id="tEvery" class="inline" style="margin-top:10px" ${preset==='every'?'':'hidden'}><span>כל</span><input class="input num" id="tN" type="number" min="1" max="60" value="${d.repeat.n||2}"><span>ימים, החל מ־</span><input class="input" id="tFrom" type="date" value="${d.repeat.from||today()}" style="width:auto"></div>
-        <div id="tOnce" class="inline" style="margin-top:10px" ${preset==='once'?'':'hidden'}><span>בתאריך</span><input class="input" id="tDate" type="date" value="${d.repeat.date||today()}" style="width:auto"></div></div>
-      <div><span class="lbl">כמה דבש זה שווה? (משימות קשות = יותר)</span><div class="chips" id="tPts">${chips([[1,'🍯 קל'],[2,'🍯🍯 בינוני'],[3,'🍯🍯🍯 כבד']],'pts',d.pts||1,'pts')}</div></div>
+      <div><span class="lbl">שייך ל</span><div class="chips" id="tArea">${chips([['neil','👶 ניל'],['home','🏠 בית']],d.area,'area')}</div></div>
+      <div id="tNeil" ${d.area==='neil'?'':'hidden'}><span class="lbl">קטגוריה אצל ניל</span><div class="chips" id="tCat">${state.cats.map(c=>`<button type="button" data-cat="${c.id}" class="${d.cat===c.id?'on':''}">${c.emoji} ${esc(c.name)}</button>`).join('')}</div></div>
+      <div id="tHome" ${d.area==='home'?'':'hidden'}><span class="lbl">מצב</span><div class="chips" id="tStatus">${chips([['active','✅ פעיל'],['hold','⏸️ בהולד']],d.status||'active','status')}</div></div>
+      <div><span class="lbl">מתי ביום</span><div class="chips" id="tWhen">${chips([['morning','🌅 בוקר'],['evening','🌙 ערב'],['any','✨ מתי שנוח']],d.when||'any','when')}</div></div>
+      <div><span class="lbl">מי אחראי</span><div class="chips" id="tWho">${chips([['any','🤝 מי שמגיע קודם'],...state.users.map(u=>[u.id,u.emoji+' '+userName(u.id)])],d.who,'who')}</div></div>
+      <div><span class="lbl">חוזר על עצמו</span><div class="chips" id="tPreset">${chips([['daily','כל יום'],['gan','ימי גן (א׳–ה׳)'],['custom','ימים מסוימים'],['every','כל X ימים'],['once','חד־פעמי']],presetR,'preset')}</div>
+        <div id="tDays" class="chips days" style="margin-top:10px" ${presetR==='custom'?'':'hidden'}>${DAYS.map((l,i)=>`<button type="button" data-day="${i}" class="${(d.repeat.days||[]).includes(i)?'on':''}" aria-label="${DAYS_FULL[i]}">${l}׳</button>`).join('')}</div>
+        <div id="tEvery" class="inline" style="margin-top:10px" ${presetR==='every'?'':'hidden'}><span>כל</span><input class="input num" id="tN" type="number" min="1" max="60" value="${d.repeat.n||2}"><span>ימים, החל מ־</span><input class="input" id="tFrom" type="date" value="${d.repeat.from||today()}" style="width:auto"></div>
+        <div id="tOnce" class="inline" style="margin-top:10px" ${presetR==='once'?'':'hidden'}><span>בתאריך</span><input class="input" id="tDate" type="date" value="${d.repeat.date||today()}" style="width:auto"></div></div>
+      <div><span class="lbl">כמה דבש זה שווה? (משימות קשות = יותר)</span><div class="chips" id="tPts">${chips([[1,'🍯 קל'],[2,'🍯🍯 בינוני'],[3,'🍯🍯🍯 כבד'],[5,'🍯×5 פרויקט']],d.pts||1,'pts')}</div></div>
       <div class="actions"><button class="btn primary" type="submit">${isNew?'הוספה':'שמירה'}</button><button class="btn ghost" type="button" id="tCancel">ביטול</button>${isNew?'':'<button class="btn danger" type="button" id="tDelete">מחיקה</button>'}</div>
       <div id="tConfirm"></div>
     </form>`);
-  const pick=(sel,attr,cb)=>$$(sel+' button').forEach(b=>b.onclick=()=>{ $$(sel+' button').forEach(x=>x.classList.toggle('on',x===b)); cb(b.dataset[attr]); });
-  pick('#tCat','cat',v=>d.cat=v); pick('#tWhen','when',v=>d.when=v); pick('#tWho','who',v=>d.who=v); pick('#tPts','pts',v=>d.pts=parseInt(v,10));
-  let curPreset=preset;
+  pick('#tArea','area',v=>{ d.area=v; $('#tNeil').hidden=v!=='neil'; $('#tHome').hidden=v!=='home'; if(v==='neil'&&!d.cat&&state.cats[0]) d.cat=state.cats[0].id; });
+  pick('#tCat','cat',v=>d.cat=v); pick('#tStatus','status',v=>d.status=v); pick('#tWhen','when',v=>d.when=v); pick('#tWho','who',v=>d.who=v); pick('#tPts','pts',v=>d.pts=parseInt(v,10));
+  let curPreset=presetR;
   pick('#tPreset','preset',v=>{ curPreset=v; $('#tDays').hidden=v!=='custom'; $('#tEvery').hidden=v!=='every'; $('#tOnce').hidden=v!=='once'; });
   $$('#tDays button').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
   $('#tCancel').onclick=closeSheet;
@@ -710,11 +817,12 @@ function openTaskSheet(t,presetCat){
   $('#taskForm').onsubmit=e=>{
     e.preventDefault();
     d.title=$('#tTitle').value.trim(); if(!d.title){ $('#tTitle').focus(); return; }
-    if(curPreset==='daily') d.repeat={type:'days',days:[0,1,2,3,4,5,6]};
-    else if(curPreset==='gan') d.repeat={type:'days',days:[0,1,2,3,4]};
+    if(curPreset==='daily') d.repeat={type:'days',days:ALL};
+    else if(curPreset==='gan') d.repeat={type:'days',days:GAN};
     else if(curPreset==='custom') d.repeat={type:'days',days:$$('#tDays button.on').map(b=>parseInt(b.dataset.day,10))};
     else if(curPreset==='every') d.repeat={type:'every',n:Math.max(1,parseInt($('#tN').value,10)||1),from:$('#tFrom').value||today()};
     else d.repeat={type:'once',date:$('#tDate').value||today()};
+    if(d.area!=='neil') d.cat=null; if(d.area!=='home') d.status='active';
     if(isNew){ d.id=uid(); d.created=today(); state.tasks.push(d); toast('המשימה נוספה 🐝'); }
     else { const i=state.tasks.findIndex(x=>x.id===t.id); if(i>=0) state.tasks[i]=d; else state.tasks.push(d); toast('נשמר'); }
     save(); sync.push('tasks/'+d.id,d); closeSheet(); render();
@@ -723,12 +831,13 @@ function openTaskSheet(t,presetCat){
 }
 
 function openCatSheet(c){
-  const inUse=state.tasks.filter(t=>t.cat===c.id).length;
+  if(!c) return;
+  const inUse=state.tasks.filter(t=>t.area==='neil'&&t.cat===c.id).length;
   openSheet(`<h2>עריכת קטגוריה</h2><form class="frm" id="catForm">
     <div class="inline"><input id="cEmoji" class="input" style="width:64px;text-align:center" value="${esc(c.emoji)}" aria-label="אימוג׳י"><input id="cName" class="input" style="flex:1" value="${esc(c.name)}" required aria-label="שם"></div>
     <div><span class="lbl">צבע</span><div class="swatches" id="cCols">${CAT_COLORS.map(col=>`<button type="button" data-col="${col}" class="${col===c.color?'on':''}" style="background:${col}" aria-label="צבע"></button>`).join('')}</div></div>
     <div class="actions"><button class="btn primary" type="submit">שמירה</button><button class="btn ghost" type="button" id="cCancel">ביטול</button>${inUse?'':'<button class="btn danger" type="button" id="cDelete">מחיקה</button>'}</div>
-    ${inUse?`<p class="note">אפשר למחוק קטגוריה רק כשאין בה משימות (יש ${inUse}).</p>`:''}
+    ${inUse?`<p class="note">אפשר למחוק קטגוריה רק כשאין בה פריטים (יש ${inUse}).</p>`:''}
   </form>`);
   let col=c.color;
   $$('#cCols button').forEach(b=>b.onclick=()=>{ col=b.dataset.col; $$('#cCols button').forEach(x=>x.classList.toggle('on',x===b)); });
@@ -746,6 +855,27 @@ function openUserSheet(u){
   $$('#uEmoji button').forEach(b=>b.onclick=()=>{ av=b.dataset.av; $$('#uEmoji button').forEach(x=>x.classList.toggle('on',x===b)); });
   $('#uCancel').onclick=closeSheet;
   $('#userForm').onsubmit=e=>{ e.preventDefault(); const uu=state.users.find(x=>x.id===u.id)||u; uu.name=$('#uName').value.trim(); uu.emoji=av; save(); sync.push('users/'+uu.id,uu); closeSheet(); render(); };
+}
+
+const REWARD_EMOJI=['🎁','💆','🎤','💌','😴','🥞','🍺','🍿','📵','🍝','☕','🎲','🛁','🎮','🍰','🌹','🎬','🏖️','🧘','🍕'];
+function openRewardSheet(r){
+  const isNew=!r;
+  const d= r? JSON.parse(JSON.stringify(r)) : {title:'',emoji:'🎁',scope:rewardScope,cost:10};
+  openSheet(`<h2>${isNew?'פרס חדש':'עריכת פרס'}</h2><form class="frm" id="rwForm">
+    <div><input id="rTitle" class="input" placeholder="מה הפרס? (מסאז׳, דייט, בוקר חופשי…)" value="${esc(d.title)}" required maxlength="60" aria-label="שם הפרס"></div>
+    <div><span class="lbl">אימוג׳י</span><div class="emojirow" id="rEmoji">${REWARD_EMOJI.map(a=>`<button type="button" data-av="${a}" class="${a===d.emoji?'on':''}">${a}</button>`).join('')}</div></div>
+    <div><span class="lbl">למי</span><div class="chips" id="rScope">${chips([['me','🙋 אישי (מי שצבר/ה)'],['us','💑 זוגי (מהצנצנת)']],d.scope,'scope')}</div></div>
+    <div><span class="lbl">מחיר בדבש</span><div class="inline"><input class="input num" id="rCost" type="number" min="1" max="999" value="${d.cost}" style="width:90px"><span class="note" style="margin:0">🍯 (משימה רגילה = 1, קשה = 3)</span></div></div>
+    <div class="actions"><button class="btn primary" type="submit">${isNew?'הוספה':'שמירה'}</button><button class="btn ghost" type="button" id="rCancel">ביטול</button>${isNew?'':'<button class="btn danger" type="button" id="rDelete">מחיקה</button>'}</div>
+    <div id="rConfirm"></div></form>`);
+  $$('#rEmoji button').forEach(b=>b.onclick=()=>{ d.emoji=b.dataset.av; $$('#rEmoji button').forEach(x=>x.classList.toggle('on',x===b)); });
+  pick('#rScope','scope',v=>d.scope=v);
+  $('#rCancel').onclick=closeSheet;
+  setTimeout(()=>{ if(isNew) $('#rTitle').focus(); },50);
+  $('#rwForm').onsubmit=e=>{ e.preventDefault(); d.title=$('#rTitle').value.trim(); if(!d.title){ $('#rTitle').focus(); return; } d.cost=Math.max(1,parseInt($('#rCost').value,10)||1);
+    if(isNew){ d.id=uid(); d.order=state.rewards.length; state.rewards.push(d); } else { const i=state.rewards.findIndex(x=>x.id===r.id); if(i>=0) state.rewards[i]=d; else state.rewards.push(d); }
+    save(); sync.push('rewards/'+d.id,d); rewardScope=d.scope; closeSheet(); render(); toast(isNew?'הפרס נוסף 🎁':'נשמר'); };
+  const del=$('#rDelete'); if(del) del.onclick=()=>{ $('#rConfirm').innerHTML=`<div class="confirm"><span>למחוק את "${esc(d.title)}"?</span><span style="display:flex;gap:6px"><button class="btn sm ghost" type="button" id="rNo">לא</button><button class="btn sm primary" type="button" id="rYes">כן</button></span></div>`; $('#rNo').onclick=()=>{ $('#rConfirm').innerHTML=''; }; $('#rYes').onclick=()=>{ state.rewards=state.rewards.filter(x=>x.id!==r.id); save(); sync.push('rewards/'+r.id,null); closeSheet(); render(); toast('נמחק'); }; };
 }
 
 /* ---------- PWA: install + offline ---------- */
@@ -774,12 +904,17 @@ function render(){
   pendingRender=false;
   renderTop();
   $$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
-  $('#fab').hidden = tab==='us';
-  $('#fab').textContent = tab==='shop' ? '🛒' : '+';
-  if(tab==='today') renderToday(); else if(tab==='board') renderBoard(); else if(tab==='shop') renderShop(); else renderUs();
+  $('#fab').textContent = tab==='shop' ? '🛒' : tab==='rewards' ? '🎁' : '+';
+  if(tab==='today') renderToday(); else if(tab==='neil') renderNeil(); else if(tab==='home') renderHome(); else if(tab==='shop') renderShop(); else renderRewards();
 }
 $$('#tabs button').forEach(b=>b.onclick=()=>{ tab=b.dataset.tab; try{ sessionStorage.setItem('hive.tab',tab); }catch(e){} newCatOpen=false; render(); scrollTo({top:0,behavior:reduced?'auto':'smooth'}); });
-$('#fab').onclick=()=>{ if(tab==='shop'){ const i=$('#shopInput'); if(i) i.focus(); return; } openTaskSheet(null, tab==='board'?null:null); };
+$('#fab').onclick=()=>{
+  if(tab==='shop'){ const i=$('#shopInput'); if(i) i.focus(); return; }
+  if(tab==='today'){ const i=$('#quickInput'); if(i){ i.focus(); i.scrollIntoView({block:'center',behavior:reduced?'auto':'smooth'}); } return; }
+  if(tab==='neil'){ openTaskSheet(null,{area:'neil'}); return; }
+  if(tab==='home'){ openTaskSheet(null,{area:'home'}); return; }
+  openRewardSheet(null);
+};
 addEventListener('resize',()=>{ const c=$('#confetti'); c.width=innerWidth; c.height=innerHeight; });
 render();
 syncInit();
