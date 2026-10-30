@@ -208,9 +208,10 @@ details.more[open] summary::before{transform:rotate(90deg)}
 
 /* tabs & fab */
 .tabs{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;z-index:20;pointer-events:none}
-.tabs .bar{pointer-events:auto;width:100%;max-width:560px;display:grid;grid-template-columns:repeat(5,1fr);background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgba(60,40,100,.08)}
-.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:14px;color:var(--muted);font-size:11.5px;font-weight:500;transition:color .2s,background .2s}
-.tabs button .i{font-size:22px;line-height:1.2;transition:transform .25s cubic-bezier(.2,1.6,.4,1)}
+.tabs .bar{pointer-events:auto;width:100%;max-width:560px;display:grid;grid-template-columns:repeat(6,1fr);background:var(--card);border-top:1px solid var(--line);padding:6px 4px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgba(60,40,100,.08)}
+.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:14px;color:var(--muted);font-size:10.5px;font-weight:500;transition:color .2s,background .2s}
+.tabs button .i{font-size:21px;line-height:1.2;transition:transform .25s cubic-bezier(.2,1.6,.4,1)}
+.private{background:color-mix(in srgb,#E96BAE 10%,var(--card2));border:1.5px dashed color-mix(in srgb,#E96BAE 50%,transparent);border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--muted);margin:6px 0 12px}
 .tabs button.on{color:var(--honey-ink);background:var(--honey-soft)}
 .tabs button.on .i{transform:translateY(-2px) scale(1.1)}
 .fab{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom,0px));inset-inline-end:calc(50% - 280px + 16px);width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--honey),var(--honey-deep));color:#2B1D00;font-size:32px;font-weight:400;display:grid;place-items:center;box-shadow:0 10px 24px rgba(217,147,26,.45);z-index:21;transition:transform .2s}
@@ -267,6 +268,7 @@ details.more[open] summary::before{transform:rotate(90deg)}
     <button data-tab="neil"><span class="i">👶</span>ניל</button>
     <button data-tab="home"><span class="i">🏠</span>בית</button>
     <button data-tab="shop"><span class="i">🛒</span>סופר</button>
+    <button data-tab="me"><span class="i">🔒</span>שלי</button>
     <button data-tab="rewards"><span class="i">🏆</span>פרסים</button>
   </div>
 </nav>
@@ -295,7 +297,7 @@ const DAYS=['א','ב','ג','ד','ה','ו','ש'];
 const DAYS_FULL=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
 const CAT_COLORS=['#4FAEE6','#9B7BEA','#F4795A','#3FBF8A','#F2B233','#E96BAE','#5AC8C8'];
 const AVATARS=['🧔🏻','👩🏻','👨🏻','👩🏻‍🦱','🧑🏻','👩🏽','🐻','🦊','🐰','🐼','🦁','🐨'];
-const AREAS={neil:{name:'ניל',emoji:'👶',color:'#4FAEE6'},home:{name:'בית',emoji:'🏠',color:'#9B7BEA'}};
+const AREAS={neil:{name:'ניל',emoji:'👶',color:'#4FAEE6'},home:{name:'בית',emoji:'🏠',color:'#9B7BEA'},me:{name:'רק שלי',emoji:'🔒',color:'#E96BAE'}};
 const uid=()=>Math.random().toString(36).slice(2,9);
 const pad=n=>String(n).padStart(2,'0');
 const dstr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
@@ -377,9 +379,17 @@ if(!state||!state.tasks||state.v!==2) state=seed();
 if(!state.rewards) state.rewards=[]; if(!state.redeemed) state.redeemed={};
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} }
 
+// Private tasks: kept ONLY on this phone (localStorage), never written to the shared database.
+const PKEY='hive.private';
+let priv={tasks:[]};
+try{ const raw=localStorage.getItem(PKEY); if(raw){ const p=JSON.parse(raw); if(p&&Array.isArray(p.tasks)) priv=p; } }catch(e){}
+function savePriv(){ try{ localStorage.setItem(PKEY,JSON.stringify(priv)); }catch(e){} }
+function allTasks(){ return state.tasks.concat(priv.tasks); }
+function findTask(id){ return allTasks().find(t=>t.id===id); }
+
 let tab='today';
 try{ tab=sessionStorage.getItem('hive.tab')||'today'; }catch(e){}
-if(!['today','neil','home','shop','rewards'].includes(tab)) tab='today';
+if(!['today','neil','home','shop','me','rewards'].includes(tab)) tab='today';
 
 // Per-device: has this phone's owner been chosen yet?
 let meChosen=false;
@@ -396,25 +406,27 @@ function isDue(t,ds){
   return false;
 }
 function dueOn(ds){ return state.tasks.filter(t=>t.status!=='hold'&&isDue(t,ds)); }
+function privDue(ds){ return priv.tasks.filter(t=>t.status!=='hold'&&isDue(t,ds)); }
 function isDone(t,ds){ return !!state.done[t.id+'|'+ds]; }
 function toggle(t,ds){
-  const k=t.id+'|'+ds; const once=t.repeat&&t.repeat.type==='once';
+  const k=t.id+'|'+ds; const once=t.repeat&&t.repeat.type==='once'; const isPriv=t.area==='me';
   if(state.done[k]){
-    delete state.done[k]; if(once) delete t.doneOnce; save();
-    const m={}; m['done/'+k]=null; if(once) m['tasks/'+t.id+'/doneOnce']=null; sync.multi(m);
+    delete state.done[k]; if(once){ delete t.doneOnce; if(isPriv) savePriv(); } save();
+    const m={}; m['done/'+k]=null; if(once&&!isPriv) m['tasks/'+t.id+'/doneOnce']=null; sync.multi(m);
     return false;
   }
-  state.done[k]={by:state.me,at:Date.now(),pts:t.pts||1,date:ds};
-  if(once) t.doneOnce=ds;
+  // a private task's completion is recorded without its title: the other phone only sees honey earned
+  state.done[k]={by:state.me,at:Date.now(),pts:t.pts||1,date:ds}; if(isPriv) state.done[k].private=true;
+  if(once){ t.doneOnce=ds; if(isPriv) savePriv(); }
   save();
-  const m={}; m['done/'+k]=state.done[k]; if(once) m['tasks/'+t.id+'/doneOnce']=ds; sync.multi(m);
+  const m={}; m['done/'+k]=state.done[k]; if(once&&!isPriv) m['tasks/'+t.id+'/doneOnce']=ds; sync.multi(m);
   return true;
 }
-// points: every completed task gives honey to the doer AND to the shared jar
-function earned(uidv){ let s=0; for(const k in state.done){ const d=state.done[k]; if(!uidv||d.by===uidv) s+=d.pts||1; } return s; }
+// points: every completed shared task gives honey to the doer AND to the shared jar; private tasks give personal honey only
+function earned(uidv,sharedOnly){ let s=0; for(const k in state.done){ const d=state.done[k]; if(sharedOnly&&d.private) continue; if(!uidv||d.by===uidv) s+=d.pts||1; } return s; }
 function spent(scope,uidv){ let s=0; for(const k in state.redeemed){ const r=state.redeemed[k]; if(r.scope===scope&&(!uidv||r.by===uidv)) s+=r.cost||0; } return s; }
 function balance(uidv){ return earned(uidv)-spent('me',uidv); }
-function jar(){ return earned()-spent('us'); }
+function jar(){ return earned(null,true)-spent('us'); }
 function canAfford(r){ return r.scope==='us' ? jar()>=r.cost : balance(state.me)>=r.cost; }
 function nextReward(scope,uidv){ const bal=scope==='us'?jar():balance(uidv); const list=state.rewards.filter(r=>r.scope===scope).sort((a,b)=>a.cost-b.cost); return list.find(r=>r.cost>bal)||null; }
 function totalDone(uidv){ let n=0; for(const k in state.done){ if(state.done[k].by===uidv) n++; } return n; }
@@ -601,7 +613,7 @@ function taskRow(t,ds,opts){
 function bindTaskRows(ds){
   $$('.task').forEach(row=>{
     $('.check',row).onclick=()=>{
-      const t=state.tasks.find(x=>x.id===row.dataset.id); if(!t) return;
+      const t=findTask(row.dataset.id); if(!t) return;
       const before=balance(state.me);
       const nowDone=toggle(t,ds);
       if(nowDone){ beep('done'); buzz(20); } else beep('undo');
@@ -614,7 +626,7 @@ function bindTaskRows(ds){
         if(unlocked){ confetti(); toast('יש לך מספיק דבש ל'+unlocked.title+' '+unlocked.emoji); }
       }
     };
-    const open=()=>{ const cur=state.tasks.find(x=>x.id===row.dataset.id); if(cur) openTaskSheet(cur); };
+    const open=()=>{ const cur=findTask(row.dataset.id); if(cur) openTaskSheet(cur); };
     $('.more',row).onclick=open; const body=$('.body',row); body.onclick=open; body.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } };
   });
 }
@@ -623,7 +635,7 @@ function brow(t){
   const who=t.who==='any'?'🤝':userEmoji(t.who);
   return `<button class="brow" data-edit="${t.id}"><div><div class="t">${esc(t.title)}</div><div class="s"><span>${esc(repeatLabel(t.repeat))}</span><span>·</span><span>${whenL[t.when||'any']}</span><span>·</span><span>🍯${t.pts>1?' ×'+t.pts:''}</span></div></div><div class="av">${who}</div></button>`;
 }
-function bindBrows(){ $$('[data-edit]').forEach(b=>b.onclick=()=>{ const t=state.tasks.find(x=>x.id===b.dataset.edit); if(t) openTaskSheet(t); }); }
+function bindBrows(){ $$('[data-edit]').forEach(b=>b.onclick=()=>{ const t=findTask(b.dataset.edit); if(t) openTaskSheet(t); }); }
 
 /* ---------- render: today ---------- */
 function renderToday(){
@@ -645,7 +657,9 @@ function renderToday(){
     const dn=list.filter(t=>isDone(t,ds)).length;
     html+=`<section class="section"><h2>${label}<span class="cnt num">${dn}/${list.length}</span></h2><div class="list">${list.map(t=>taskRow(t,ds,{showArea:true})).join('')}</div></section>`;
   });
-  if(!any) html+=`<div class="empty" style="margin-top:16px"><b>אין משימות להיום</b>אפשר להוסיף משימה למעלה, או פשוט לנוח ☕</div>`;
+  if(!any) html+=`<div class="empty" style="margin-top:16px"><b>אין משימות משותפות להיום</b>אפשר להוסיף משימה למעלה, או פשוט לנוח ☕</div>`;
+  const pd=privDue(ds).sort(sort);
+  if(pd.length){ const pdn=pd.filter(t=>isDone(t,ds)).length; html+=`<section class="section"><h2>🔒 רק שלי<span class="cnt num">${pdn}/${pd.length}</span></h2><div class="list">${pd.map(t=>taskRow(t,ds)).join('')}</div></section>`; }
   $('#view').innerHTML=html;
   bindTaskRows(ds);
   $('#quickForm').onsubmit=e=>{ e.preventDefault(); const v=$('#quickInput').value.trim(); if(!v) return; const t=T(v,'home',null,'any','any',{type:'once',date:ds},1); state.tasks.push(t); save(); sync.push('tasks/'+t.id,t); beep('done'); render(); toast('נוסף להיום 📌'); };
@@ -701,6 +715,29 @@ function renderHome(){
   $('#addHome').onclick=()=>openTaskSheet(null,{area:'home'});
   $('#addHold').onclick=()=>openTaskSheet(null,{area:'home',status:'hold'});
   $$('[data-activate]').forEach(b=>b.onclick=()=>{ const t=state.tasks.find(x=>x.id===b.dataset.activate); if(!t) return; t.status='active'; if(t.repeat&&t.repeat.type==='once'&&t.repeat.date<ds) t.repeat.date=ds; save(); sync.push('tasks/'+t.id,t); beep('done'); renderHome(); toast('הופעל! עכשיו זה ברשימה 💪'); });
+}
+
+/* ---------- render: שלי (private, this phone only) ---------- */
+function renderMine(){
+  const ds=today();
+  const act=priv.tasks.filter(t=>t.status!=='hold'), hold=priv.tasks.filter(t=>t.status==='hold');
+  const dueT=act.filter(t=>isDue(t,ds)).sort((a,b)=>(isDone(a,ds)-isDone(b,ds))||a.title.localeCompare(b.title,'he'));
+  const other=act.filter(t=>!isDue(t,ds)).sort((a,b)=>a.title.localeCompare(b.title,'he'));
+  const dn=dueT.filter(t=>isDone(t,ds)).length;
+  let html=`<div class="private">🔒 המשימות כאן הן רק של ${esc(userName(state.me))}. הן נשמרות בטלפון הזה בלבד ולא נשלחות לכוורת המשותפת, אז ${esc(userName(state.me==='a'?'b':'a'))} לא רואה אותן. סיום נותן דבש אישי (לא לצנצנת).</div>`;
+  if(!priv.tasks.length){
+    html+=`<div class="empty"><b>עדיין אין משימות אישיות</b>דברים שרק אתם רוצים לזכור: תור לרופא, לסיים ספר, להתקשר לאמא. הוסיפו עם הכפתור הצהוב 🐝</div>`;
+  } else {
+    html+=`<section class="section" style="margin-top:6px"><h2>✅ להיום<span class="cnt num">${dn}/${dueT.length}</span></h2>
+      ${dueT.length?`<div class="list">${dueT.map(t=>taskRow(t,ds)).join('')}</div>`:`<p class="note" style="margin:0 4px">אין משימות אישיות להיום.</p>`}</section>`;
+    if(other.length) html+=`<section class="section"><h2>🔁 לימים אחרים<span class="cnt num">${other.length}</span></h2><div class="catcard" style="--c:#E96BAE">${other.map(brow).join('')}</div></section>`;
+    if(hold.length) html+=`<section class="section"><h2>⏸️ בהולד<span class="cnt num">${hold.length}</span></h2><div class="catcard" style="--c:#999">${hold.map(t=>`<div class="holdrow">${brow(t)}<button class="act" data-activate="${t.id}" aria-label="הפעלה">▶</button></div>`).join('')}</div></section>`;
+  }
+  html+=`<button class="btn ghost block" id="addMine" style="margin-top:14px">+ משימה אישית</button>`;
+  $('#view').innerHTML=html;
+  bindTaskRows(ds); bindBrows();
+  $('#addMine').onclick=()=>openTaskSheet(null,{area:'me'});
+  $$('[data-activate]').forEach(b=>b.onclick=()=>{ const t=priv.tasks.find(x=>x.id===b.dataset.activate); if(!t) return; t.status='active'; if(t.repeat&&t.repeat.type==='once'&&t.repeat.date<ds) t.repeat.date=ds; savePriv(); beep('done'); renderMine(); });
 }
 
 /* ---------- render: סופר ---------- */
@@ -768,7 +805,7 @@ function renderRewards(){
     $('#rdYes').onclick=()=>{ const id=uid(); const rec={rewardId:r.id,title:r.title,emoji:r.emoji||'🎁',scope:r.scope,cost:r.cost,by:state.me,at:Date.now()}; state.redeemed[id]=rec; save(); sync.push('redeemed/'+id,rec); beep('win'); buzz([30,50,30]); confetti(); renderRewards(); toast(r.scope==='us'?'מגיע לכם: '+r.title+' '+rec.emoji:'מגיע לך: '+r.title+' '+rec.emoji); };
   });
   $('#soundSw').onclick=()=>{ state.settings.sound=!state.settings.sound; save(); renderRewards(); if(state.settings.sound) beep('done'); };
-  $('#resetBtn').onclick=()=>{ $('#resetConfirm').innerHTML=`<div class="confirm" style="margin-top:8px"><span>למחוק הכול ולהתחיל מהרשימות המוכנות?</span><span style="display:flex;gap:6px"><button class="btn sm ghost" id="resetNo">לא</button><button class="btn sm primary" id="resetYes">כן, מאפס</button></span></div>`; $('#resetNo').onclick=()=>{ $('#resetConfirm').innerHTML=''; }; $('#resetYes').onclick=()=>{ const users=state.users, me=state.me, sound=state.settings.sound; state=seed(); state.users=users; state.me=me; state.settings.sound=sound; save(); if(sync.ref) sync.ref.set(toServer(state)).catch(()=>{}); render(); toast('התחלנו מחדש ✨'); }; };
+  $('#resetBtn').onclick=()=>{ $('#resetConfirm').innerHTML=`<div class="confirm" style="margin-top:8px"><span>למחוק הכול ולהתחיל מהרשימות המוכנות?</span><span style="display:flex;gap:6px"><button class="btn sm ghost" id="resetNo">לא</button><button class="btn sm primary" id="resetYes">כן, מאפס</button></span></div>`; $('#resetNo').onclick=()=>{ $('#resetConfirm').innerHTML=''; }; $('#resetYes').onclick=()=>{ const users=state.users, me=state.me, sound=state.settings.sound; state=seed(); state.users=users; state.me=me; state.settings.sound=sound; save(); priv={tasks:[]}; savePriv(); if(sync.ref) sync.ref.set(toServer(state)).catch(()=>{}); render(); toast('התחלנו מחדש ✨'); }; };
 }
 
 /* ---------- sheets ---------- */
@@ -786,7 +823,7 @@ const pick=(sel,attr,cb)=>$$(sel+' button').forEach(b=>b.onclick=()=>{ $$(sel+' 
 
 function openTaskSheet(t,preset){
   const isNew=!t; preset=preset||{};
-  const d= t? JSON.parse(JSON.stringify(t)) : {title:'',area:preset.area||'home',cat:preset.cat||(preset.area==='neil'&&state.cats[0]?state.cats[0].id:null),when:preset.area==='neil'?'morning':'any',who:'any',repeat:preset.status==='hold'?{type:'once',date:today()}:{type:'days',days:ALL},pts:1,status:preset.status||'active'};
+  const d= t? JSON.parse(JSON.stringify(t)) : {title:'',area:preset.area||'home',cat:preset.cat||(preset.area==='neil'&&state.cats[0]?state.cats[0].id:null),when:preset.area==='neil'?'morning':'any',who:preset.area==='me'?state.me:'any',repeat:(preset.status==='hold'||preset.area==='me')?{type:'once',date:today()}:{type:'days',days:ALL},pts:1,status:preset.status||'active'};
   if(!d.repeat) d.repeat={type:'days',days:ALL};
   const rtype= d.repeat.type;
   const presetR= rtype==='every'?'every': rtype==='once'?'once': (d.repeat.days||[]).length===7?'daily': ((d.repeat.days||[]).length===5&&GAN.every(x=>d.repeat.days.includes(x)))?'gan':'custom';
@@ -794,11 +831,12 @@ function openTaskSheet(t,preset){
     <h2>${isNew?'משימה חדשה':'עריכת משימה'}</h2>
     <form class="frm" id="taskForm">
       <div><input id="tTitle" class="input" placeholder="מה צריך לעשות?" value="${esc(d.title)}" required maxlength="80" aria-label="שם המשימה"></div>
-      <div><span class="lbl">שייך ל</span><div class="chips" id="tArea">${chips([['neil','👶 ניל'],['home','🏠 בית']],d.area,'area')}</div></div>
+      <div><span class="lbl">שייך ל</span><div class="chips" id="tArea">${chips([['neil','👶 ניל'],['home','🏠 בית'],['me','🔒 רק שלי']],d.area,'area')}</div>
+        <p class="note" id="tPrivNote" style="margin:6px 0 0" ${d.area==='me'?'':'hidden'}>נשמר בטלפון הזה בלבד. ${esc(userName(state.me==='a'?'b':'a'))} לא רואה את זה.</p></div>
       <div id="tNeil" ${d.area==='neil'?'':'hidden'}><span class="lbl">קטגוריה אצל ניל</span><div class="chips" id="tCat">${state.cats.map(c=>`<button type="button" data-cat="${c.id}" class="${d.cat===c.id?'on':''}">${c.emoji} ${esc(c.name)}</button>`).join('')}</div></div>
-      <div id="tHome" ${d.area==='home'?'':'hidden'}><span class="lbl">מצב</span><div class="chips" id="tStatus">${chips([['active','✅ פעיל'],['hold','⏸️ בהולד']],d.status||'active','status')}</div></div>
+      <div id="tHome" ${d.area==='neil'?'hidden':''}><span class="lbl">מצב</span><div class="chips" id="tStatus">${chips([['active','✅ פעיל'],['hold','⏸️ בהולד']],d.status||'active','status')}</div></div>
       <div><span class="lbl">מתי ביום</span><div class="chips" id="tWhen">${chips([['morning','🌅 בוקר'],['evening','🌙 ערב'],['any','✨ מתי שנוח']],d.when||'any','when')}</div></div>
-      <div><span class="lbl">מי אחראי</span><div class="chips" id="tWho">${chips([['any','🤝 מי שמגיע קודם'],...state.users.map(u=>[u.id,u.emoji+' '+userName(u.id)])],d.who,'who')}</div></div>
+      <div id="tWhoWrap" ${d.area==='me'?'hidden':''}><span class="lbl">מי אחראי</span><div class="chips" id="tWho">${chips([['any','🤝 מי שמגיע קודם'],...state.users.map(u=>[u.id,u.emoji+' '+userName(u.id)])],d.who,'who')}</div></div>
       <div><span class="lbl">חוזר על עצמו</span><div class="chips" id="tPreset">${chips([['daily','כל יום'],['gan','ימי גן (א׳–ה׳)'],['custom','ימים מסוימים'],['every','כל X ימים'],['once','חד־פעמי']],presetR,'preset')}</div>
         <div id="tDays" class="chips days" style="margin-top:10px" ${presetR==='custom'?'':'hidden'}>${DAYS.map((l,i)=>`<button type="button" data-day="${i}" class="${(d.repeat.days||[]).includes(i)?'on':''}" aria-label="${DAYS_FULL[i]}">${l}׳</button>`).join('')}</div>
         <div id="tEvery" class="inline" style="margin-top:10px" ${presetR==='every'?'':'hidden'}><span>כל</span><input class="input num" id="tN" type="number" min="1" max="60" value="${d.repeat.n||2}"><span>ימים, החל מ־</span><input class="input" id="tFrom" type="date" value="${d.repeat.from||today()}" style="width:auto"></div>
@@ -807,7 +845,7 @@ function openTaskSheet(t,preset){
       <div class="actions"><button class="btn primary" type="submit">${isNew?'הוספה':'שמירה'}</button><button class="btn ghost" type="button" id="tCancel">ביטול</button>${isNew?'':'<button class="btn danger" type="button" id="tDelete">מחיקה</button>'}</div>
       <div id="tConfirm"></div>
     </form>`);
-  pick('#tArea','area',v=>{ d.area=v; $('#tNeil').hidden=v!=='neil'; $('#tHome').hidden=v!=='home'; if(v==='neil'&&!d.cat&&state.cats[0]) d.cat=state.cats[0].id; });
+  pick('#tArea','area',v=>{ d.area=v; $('#tNeil').hidden=v!=='neil'; $('#tHome').hidden=v==='neil'; $('#tWhoWrap').hidden=v==='me'; $('#tPrivNote').hidden=v!=='me'; if(v==='neil'&&!d.cat&&state.cats[0]) d.cat=state.cats[0].id; });
   pick('#tCat','cat',v=>d.cat=v); pick('#tStatus','status',v=>d.status=v); pick('#tWhen','when',v=>d.when=v); pick('#tWho','who',v=>d.who=v); pick('#tPts','pts',v=>d.pts=parseInt(v,10));
   let curPreset=presetR;
   pick('#tPreset','preset',v=>{ curPreset=v; $('#tDays').hidden=v!=='custom'; $('#tEvery').hidden=v!=='every'; $('#tOnce').hidden=v!=='once'; });
@@ -822,12 +860,16 @@ function openTaskSheet(t,preset){
     else if(curPreset==='custom') d.repeat={type:'days',days:$$('#tDays button.on').map(b=>parseInt(b.dataset.day,10))};
     else if(curPreset==='every') d.repeat={type:'every',n:Math.max(1,parseInt($('#tN').value,10)||1),from:$('#tFrom').value||today()};
     else d.repeat={type:'once',date:$('#tDate').value||today()};
-    if(d.area!=='neil') d.cat=null; if(d.area!=='home') d.status='active';
-    if(isNew){ d.id=uid(); d.created=today(); state.tasks.push(d); toast('המשימה נוספה 🐝'); }
-    else { const i=state.tasks.findIndex(x=>x.id===t.id); if(i>=0) state.tasks[i]=d; else state.tasks.push(d); toast('נשמר'); }
-    save(); sync.push('tasks/'+d.id,d); closeSheet(); render();
+    if(d.area!=='neil') d.cat=null; if(d.area==='neil') d.status='active'; if(d.area==='me') d.who=state.me;
+    if(isNew){ d.id=uid(); d.created=today(); toast(d.area==='me'?'נוסף, רק אצלך 🔒':'המשימה נוספה 🐝'); } else toast('נשמר');
+    const wasShared=!isNew&&state.tasks.some(x=>x.id===t.id);
+    // a task can move between the shared hive and this phone's private list: remove it from both, then file it
+    state.tasks=state.tasks.filter(x=>x.id!==d.id); priv.tasks=priv.tasks.filter(x=>x.id!==d.id);
+    if(d.area==='me'){ priv.tasks.push(d); savePriv(); if(wasShared) sync.push('tasks/'+d.id,null); }
+    else { state.tasks.push(d); sync.push('tasks/'+d.id,d); }
+    save(); closeSheet(); render();
   };
-  const del=$('#tDelete'); if(del) del.onclick=()=>{ $('#tConfirm').innerHTML=`<div class="confirm"><span>למחוק את "${esc(d.title)}"?</span><span style="display:flex;gap:6px"><button class="btn sm ghost" type="button" id="dNo">לא</button><button class="btn sm primary" type="button" id="dYes">כן</button></span></div>`; $('#dNo').onclick=()=>{ $('#tConfirm').innerHTML=''; }; $('#dYes').onclick=()=>{ state.tasks=state.tasks.filter(x=>x.id!==t.id); save(); sync.push('tasks/'+t.id,null); closeSheet(); render(); toast('נמחק'); }; };
+  const del=$('#tDelete'); if(del) del.onclick=()=>{ $('#tConfirm').innerHTML=`<div class="confirm"><span>למחוק את "${esc(d.title)}"?</span><span style="display:flex;gap:6px"><button class="btn sm ghost" type="button" id="dNo">לא</button><button class="btn sm primary" type="button" id="dYes">כן</button></span></div>`; $('#dNo').onclick=()=>{ $('#tConfirm').innerHTML=''; }; $('#dYes').onclick=()=>{ const wasShared=state.tasks.some(x=>x.id===t.id); state.tasks=state.tasks.filter(x=>x.id!==t.id); priv.tasks=priv.tasks.filter(x=>x.id!==t.id); savePriv(); save(); if(wasShared) sync.push('tasks/'+t.id,null); closeSheet(); render(); toast('נמחק'); }; };
 }
 
 function openCatSheet(c){
@@ -905,7 +947,7 @@ function render(){
   renderTop();
   $$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   $('#fab').textContent = tab==='shop' ? '🛒' : tab==='rewards' ? '🎁' : '+';
-  if(tab==='today') renderToday(); else if(tab==='neil') renderNeil(); else if(tab==='home') renderHome(); else if(tab==='shop') renderShop(); else renderRewards();
+  if(tab==='today') renderToday(); else if(tab==='neil') renderNeil(); else if(tab==='home') renderHome(); else if(tab==='shop') renderShop(); else if(tab==='me') renderMine(); else renderRewards();
 }
 $$('#tabs button').forEach(b=>b.onclick=()=>{ tab=b.dataset.tab; try{ sessionStorage.setItem('hive.tab',tab); }catch(e){} newCatOpen=false; render(); scrollTo({top:0,behavior:reduced?'auto':'smooth'}); });
 $('#fab').onclick=()=>{
@@ -913,6 +955,7 @@ $('#fab').onclick=()=>{
   if(tab==='today'){ const i=$('#quickInput'); if(i){ i.focus(); i.scrollIntoView({block:'center',behavior:reduced?'auto':'smooth'}); } return; }
   if(tab==='neil'){ openTaskSheet(null,{area:'neil'}); return; }
   if(tab==='home'){ openTaskSheet(null,{area:'home'}); return; }
+  if(tab==='me'){ openTaskSheet(null,{area:'me'}); return; }
   openRewardSheet(null);
 };
 addEventListener('resize',()=>{ const c=$('#confetti'); c.width=innerWidth; c.height=innerHeight; });

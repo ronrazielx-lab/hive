@@ -1,5 +1,5 @@
 /* הכוורת — service worker: offline app shell + cached fonts */
-const VERSION = 'hive-v5';
+const VERSION = 'hive-v6';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
