@@ -32,6 +32,8 @@ loads it. Each phone asks once "who is using this phone?" so honey is credited t
 any time via the avatar toggle at the top). The house code is visible in the public source; the data is a chores
 list, so that trade-off was accepted. To start over with an empty hive, change `HOUSE` and redeploy.
 
+Private tasks (the שלי tab, or "רק שלי" in the task form) are stored only in that phone's localStorage and never sent to Firebase; only an anonymous completion record (honey, no title) is synced so the personal balance stays right across devices. Clearing the browser's site data deletes them.
+
 How sync behaves: every change is a small targeted write, queued in an outbox on the device so nothing is lost if the app is closed while offline. `me` (which partner uses this phone) and the sound toggle stay per-device.
 
 ## Deploying

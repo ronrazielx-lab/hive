@@ -21,11 +21,12 @@ Home tasks are mostly *recurring* and *invisible*. The mental load of rememberin
 | ניל (Neil) | Checklists by sub-category (תיק לגן, בוקר, ערב ואמבטיה, בריאות, add your own). Today's items are checkable; items for other days sit in a folded row. |
 | בית (Home) | Home tasks: due today (checkable), the other recurring ones and projects, and an "on hold" shelf for things that aren't now (hang the shelf, sort the storage). One tap moves a task back to active. |
 | סופר (Super) | Shared grocery list. Quick-add, suggestion chips, check items in the store, clear cart. |
+| שלי (Mine) | Private tasks that live only on this phone and are never written to the shared database, so the other partner cannot see them. Due-today ones also appear in היום under "🔒 רק שלי". Completing one earns personal honey only, not jar honey. |
 | פרסים (Rewards) | Each partner's personal honey balance, the couple jar, reward lists (personal and couple) with prices and a redeem button, recent redemptions, 7-day streak, settings. |
 
 ## Task model
 
-- title, area (ניל / בית), Neil sub-category, home status (active / hold)
+- title, area (ניל / בית / רק שלי), Neil sub-category, status (active / hold)
 - time of day (morning / evening / any)
 - owner: צ'ילד, נטן דה נטן, or "whoever gets to it first"
 - repeat: `days [0..6]` · `every N days from date` · `once on date` (one-offs carry over until done)
